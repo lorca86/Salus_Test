@@ -87,18 +87,38 @@ su estructura y preguntas de ejemplo — ver comentarios en `scripts/seed.ts`
 sobre reactivos con derechos reservados que deben licenciarse antes de uso
 clínico real) y una tabla de baremo de ejemplo.
 
-## 4. Desplegar en Firebase Hosting
+## 4. Desplegar en Firebase App Hosting
+
+Este proyecto se despliega como una app Next.js con SSR en **Firebase App
+Hosting** (no como export estático clásico): todas las páginas dependen de
+sesión de Firebase Auth/Firestore en el cliente, así que `app/layout.tsx`
+fuerza `dynamic = "force-dynamic"` para que Next nunca intente pre-renderizarlas
+en build time.
+
+1. En la consola de Firebase → **App Hosting** → crea un backend y conéctalo
+   a este repositorio/rama (`claude/salus-psychometric-app-ntkfvl` o la rama
+   que uses en producción). Cada push dispara un build automático.
+2. **Configura `apphosting.yaml`** (en la raíz del repo) con los valores
+   reales de tu app Web (Consola de Firebase → Configuración del proyecto →
+   Tus apps → SDK). Esto es obligatorio: si faltan, el build falla con
+   `auth/invalid-api-key` porque Next intenta inicializar Firebase incluso
+   en las rutas dinámicas al arrancar el servidor.
+3. Push a la rama conectada → App Hosting compila y despliega solo.
+
+Alternativa (Hosting estático clásico, sin SSR): reintroduce
+`output: "export"` en `next.config.mjs`, quita `dynamic = "force-dynamic"`
+de `app/layout.tsx`, y despliega con:
 
 ```bash
-npm install -g firebase-tools   # si no lo tienes
+npm install -g firebase-tools
 firebase login
-firebase use --add              # selecciona tu proyecto y actualiza .firebaserc
-
-npm run build                   # genera la carpeta out/ (export estático)
+firebase use --add
+npm run build                   # genera la carpeta out/
 firebase deploy --only hosting,firestore:rules,firestore:indexes
 ```
 
-La app quedará publicada en `https://<tu-proyecto>.web.app`.
+En ambos casos la app queda publicada en `https://<tu-proyecto>.web.app`
+(o el dominio que asigne App Hosting).
 
 Para reglas de Firestore: revisa `firestore.rules` antes de desplegar a
 producción. El acceso sin sesión (Modo Kiosco / enlace remoto) se resuelve

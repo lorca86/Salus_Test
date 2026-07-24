@@ -1,0 +1,44 @@
+# Configuración de Firebase App Hosting.
+# Estas variables se necesitan en BUILD (Next.js pre-renderiza rutas y necesita
+# un valor válido para inicializar el SDK de Firebase) y en RUNTIME (el cliente
+# las usa para conectarse a Auth/Firestore). Reemplaza los valores por los de
+# tu app Web: Consola de Firebase > Configuración del proyecto > Tus apps > SDK.
+#
+# Estas claves (NEXT_PUBLIC_FIREBASE_*) son públicas por diseño del SDK de
+# Firebase Web (viajan al navegador); no son secretas y no necesitan ir en
+# Secret Manager, a diferencia de credenciales de servidor.
+
+runConfig:
+  minInstances: 0
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "REEMPLAZAR"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "REEMPLAZAR.firebaseapp.com"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "REEMPLAZAR"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "REEMPLAZAR.appspot.com"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "REEMPLAZAR"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "REEMPLAZAR"
+    availability:
+      - BUILD
+      - RUNTIME
