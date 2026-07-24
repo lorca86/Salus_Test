@@ -32,13 +32,14 @@ function AsignacionesContenido() {
 
   useEffect(() => {
     if (!usuario) return;
-    void Promise.all([listarPacientes(usuario.uid), listarCatalogo(), cargarAssessments(usuario.uid)]).then(
-      ([p, c]) => {
-        setPacientes(p);
-        setCatalogo(c);
-        if (!testId && c.length) setTestId(c[0].id);
-      }
-    );
+    listarCatalogo().then((c) => {
+      setCatalogo(c);
+      if (!testId && c.length) setTestId(c[0].id);
+    });
+    listarPacientes(usuario.uid)
+      .then(setPacientes)
+      .catch((err) => console.error("Error al cargar pacientes:", err));
+    void cargarAssessments(usuario.uid);
   }, [usuario]);
 
   async function cargarAssessments(evaluadorId: string) {

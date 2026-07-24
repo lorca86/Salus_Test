@@ -19,13 +19,23 @@ function CatalogoContenido() {
   const [catalogo, setCatalogo] = useState<TestDefinition[]>([]);
   const [patientId, setPatientId] = useState(patientIdInicial);
   const [creandoObservacion, setCreandoObservacion] = useState<string | null>(null);
+  const [errorPacientes, setErrorPacientes] = useState<string | null>(null);
 
+  // Se cargan por separado: si listar pacientes falla (p.ej. falta un índice
+  // de Firestore), no debe tumbar también el catálogo de pruebas.
   useEffect(() => {
     if (!usuario) return;
-    void Promise.all([listarPacientes(usuario.uid), listarCatalogo()]).then(([p, c]) => {
-      setPacientes(p);
-      setCatalogo(c);
-    });
+    listarCatalogo()
+      .then(setCatalogo)
+      .catch((err) => console.error("Error al cargar el catálogo:", err));
+    listarPacientes(usuario.uid)
+      .then(setPacientes)
+      .catch((err) => {
+        console.error("Error al cargar pacientes:", err);
+        setErrorPacientes(
+          "No se pudo cargar la lista de pacientes (revisa la consola del navegador; puede faltar un índice de Firestore)."
+        );
+      });
   }, [usuario]);
 
   const pacienteSeleccionado = pacientes.find((p) => p.id === patientId) ?? null;
@@ -70,6 +80,7 @@ function CatalogoContenido() {
             </option>
           ))}
         </select>
+        {errorPacientes && <p className="mt-2 text-xs text-red-600">{errorPacientes}</p>}
         <p className="mt-2 text-xs text-clinical-slate-400">
           Si no eliges paciente ahora, en autoinformes igual podrás adjuntarlo al terminar, antes de
           guardar. Las pruebas de observación sí requieren paciente para iniciar.

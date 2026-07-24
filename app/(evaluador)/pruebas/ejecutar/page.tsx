@@ -20,7 +20,7 @@ function EjecutarContenido() {
 
   useEffect(() => {
     if (!usuario || !testId) return;
-    void Promise.all([obtenerTest(testId), listarPacientes(usuario.uid)]).then(([t, p]) => {
+    obtenerTest(testId).then((t) => {
       if (!t) {
         setError("No se encontró la prueba solicitada.");
         return;
@@ -30,8 +30,12 @@ function EjecutarContenido() {
         return;
       }
       setTest(t);
-      setPacientes(p);
     });
+    // La lista de pacientes es secundaria (solo para adjuntar/guardar): si
+    // falla, la prueba debe poder correr igual, sin paciente.
+    listarPacientes(usuario.uid)
+      .then(setPacientes)
+      .catch((err) => console.error("Error al cargar pacientes:", err));
   }, [usuario, testId]);
 
   if (error) {

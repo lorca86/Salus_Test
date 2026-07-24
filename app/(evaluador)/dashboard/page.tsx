@@ -9,10 +9,10 @@ import { useAuth } from "@/lib/useAuth";
 import { ClipboardList, Clock, CheckCircle2, Users, BookOpen } from "lucide-react";
 
 interface Resumen {
-  activas: number;
-  pendientes: number;
-  completadasRecientes: number;
-  pacientes: number;
+  activas?: number;
+  pendientes?: number;
+  completadasRecientes?: number;
+  pacientes?: number;
 }
 
 export default function DashboardPage() {
@@ -26,17 +26,20 @@ export default function DashboardPage() {
 
   async function cargarResumen(evaluadorId: string) {
     const assessmentsRef = collection(db, "assessments");
-    const [enProceso, pendientes, completadas, pacientes] = await Promise.all([
+    // allSettled: si una consulta falla, las demás tarjetas igual se muestran.
+    const [enProceso, pendientes, completadas, pacientes] = await Promise.allSettled([
       getDocs(query(assessmentsRef, where("evaluadorId", "==", evaluadorId), where("estado", "==", "en_proceso"))),
       getDocs(query(assessmentsRef, where("evaluadorId", "==", evaluadorId), where("estado", "==", "pendiente"))),
       getDocs(query(assessmentsRef, where("evaluadorId", "==", evaluadorId), where("estado", "==", "completado"))),
       getDocs(query(collection(db, "patients"), where("evaluadorId", "==", evaluadorId))),
     ]);
+    const tam = (r: PromiseSettledResult<{ size: number }>) =>
+      r.status === "fulfilled" ? r.value.size : undefined;
     setResumen({
-      activas: enProceso.size,
-      pendientes: pendientes.size,
-      completadasRecientes: completadas.size,
-      pacientes: pacientes.size,
+      activas: tam(enProceso),
+      pendientes: tam(pendientes),
+      completadasRecientes: tam(completadas),
+      pacientes: tam(pacientes),
     });
   }
 
