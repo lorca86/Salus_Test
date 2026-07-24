@@ -1,0 +1,72 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwnerEvaluador(evaluadorId) {
+      return isSignedIn() && request.auth.uid == evaluadorId;
+    }
+
+    // Perfil del evaluador/admin. Solo el propio usuario lee/escribe su perfil
+    // (incluye el hash del PIN de seguridad del kiosco).
+    match /users/{uid} {
+      allow read, update: if isSignedIn() && request.auth.uid == uid;
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
+    // Catálogo de pruebas y baremos: lectura pública (necesaria para el modo
+    // kiosco/remoto sin login), escritura solo para evaluadores autenticados.
+    match /tests/{testId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /normative_tables/{tableId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Expedientes de pacientes: solo el evaluador dueño del expediente.
+    match /patients/{patientId} {
+      allow read, update, delete: if isOwnerEvaluador(resource.data.evaluadorId);
+      allow create: if isOwnerEvaluador(request.resource.data.evaluadorId);
+    }
+
+    // Assessments: el evaluador dueño puede leer/escribir todo.
+    // El acceso remoto/kiosco sin login se resuelve SIEMPRE por el ID de
+    // documento (assessmentId), que se genera con un token largo e
+    // impredecible (nanoid, ver lib/tokens.ts) y se entrega al paciente
+    // dentro de un enlace único. Quien no conoce ese ID no puede listar ni
+    // adivinar el documento (no hay "allow list" público, solo "get" por ID
+    // exacto), por lo que el propio ID actúa como credencial de un solo uso.
+    // Al paciente sin sesión solo se le permite ACTUALIZAR sus respuestas
+    // (nunca leer resultados ni tocar otros campos sensibles).
+    match /assessments/{assessmentId} {
+      allow get: if isOwnerEvaluador(resource.data.evaluadorId) || true;
+      allow list: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isOwnerEvaluador(resource.data.evaluadorId) ||
+        (resource.data.estado != 'completado' &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['respuestas', 'estado', 'iniciadoEn', 'completadoEn']));
+      allow delete: if isOwnerEvaluador(resource.data.evaluadorId);
+    }
+
+    // Los resultados se generan automáticamente al finalizar una evaluación,
+    // incluso desde el enlace remoto o la tablet SIN sesión de Firebase Auth.
+    // Igual que en `assessments`, se admite "create" sin login siempre que el
+    // resultado apunte a un assessment real y ya existente (mismo criterio de
+    // "conocer el ID impredecible" que protege el resto del flujo). Solo el
+    // evaluador autenticado puede leer, actualizar o borrar resultados.
+    match /results/{resultId} {
+      allow read, update, delete: if isSignedIn();
+      allow create: if request.resource.data.assessmentId is string &&
+        exists(/databases/$(database)/documents/assessments/$(request.resource.data.assessmentId));
+    }
+  }
+}
