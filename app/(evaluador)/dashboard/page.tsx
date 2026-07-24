@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/useAuth";
-import { ClipboardList, Clock, CheckCircle2, Users } from "lucide-react";
+import { ClipboardList, Clock, CheckCircle2, Users, BookOpen } from "lucide-react";
 
 interface Resumen {
   activas: number;
@@ -48,7 +49,13 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-clinical-slate-800">Dashboard</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-clinical-slate-800">Dashboard</h1>
+        <Button onClick={() => (window.location.href = "/pruebas/")}>
+          <BookOpen className="h-4 w-4" />
+          Aplicar una prueba
+        </Button>
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tarjetas.map(({ label, valor, icon: Icon, color }) => (
           <Card key={label}>

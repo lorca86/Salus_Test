@@ -82,7 +82,7 @@ export interface NormativeTable {
   tablaConversion: Record<string, number>; // puntuacionDirecta (string) -> percentil/escalar
 }
 
-export type ModalidadAplicacion = "remoto" | "tablet";
+export type ModalidadAplicacion = "remoto" | "tablet" | "presencial";
 export type EstadoAssessment = "pendiente" | "en_proceso" | "completado";
 
 export interface Assessment {

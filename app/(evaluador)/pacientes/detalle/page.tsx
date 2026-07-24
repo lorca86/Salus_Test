@@ -46,9 +46,17 @@ function DetallePacienteContenido() {
             {paciente.edad} años · {paciente.sexo} · Nacimiento: {paciente.fechaNacimiento}
           </p>
         </div>
-        <Button onClick={() => (window.location.href = `/asignaciones/?patientId=${paciente.id}`)}>
-          Asignar prueba
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => (window.location.href = `/pruebas/?patientId=${paciente.id}`)}
+          >
+            Aplicar prueba ahora
+          </Button>
+          <Button onClick={() => (window.location.href = `/asignaciones/?patientId=${paciente.id}`)}>
+            Asignar a distancia
+          </Button>
+        </div>
       </div>
 
       {paciente.notas && (

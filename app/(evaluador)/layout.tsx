@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Users,
   ClipboardList,
+  BookOpen,
   Settings,
   LogOut,
   Stethoscope,
@@ -14,6 +15,7 @@ import { cerrarSesion } from "@/lib/auth";
 
 const NAV = [
   { href: "/dashboard/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/pruebas/", label: "Catálogo de pruebas", icon: BookOpen },
   { href: "/pacientes/", label: "Pacientes", icon: Users },
   { href: "/asignaciones/", label: "Evaluaciones", icon: ClipboardList },
   { href: "/configuracion/", label: "Configuración", icon: Settings },
