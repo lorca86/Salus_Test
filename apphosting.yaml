@@ -13,32 +13,32 @@ runConfig:
 
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: "REEMPLAZAR"
+    value: "AIzaSyDNeJE1gRpdeHdpNracc5MwAn9IkXTherE"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: "REEMPLAZAR.firebaseapp.com"
+    value: "salustest-4d6a0.firebaseapp.com"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: "REEMPLAZAR"
+    value: "salustest-4d6a0"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: "REEMPLAZAR.appspot.com"
+    value: "salustest-4d6a0.firebasestorage.app"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: "REEMPLAZAR"
+    value: "668404115819"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: "REEMPLAZAR"
+    value: "1:668404115819:web:43a4320cb352e35216442e"
     availability:
       - BUILD
       - RUNTIME
