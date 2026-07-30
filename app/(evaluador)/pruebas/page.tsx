@@ -7,8 +7,10 @@ import { useAuth } from "@/lib/useAuth";
 import { listarPacientes } from "@/lib/patients";
 import { listarCatalogo } from "@/lib/catalog";
 import { crearAsignacion } from "@/lib/assessments";
-import type { Patient, TestDefinition } from "@/lib/types";
+import { CATEGORIAS, infoCategoria } from "@/lib/categorias";
+import type { CategoriaTest, Patient, TestDefinition } from "@/lib/types";
 import { ClipboardList, Eye, Loader2 } from "lucide-react";
+import clsx from "clsx";
 
 function CatalogoContenido() {
   const { usuario } = useAuth();
@@ -20,6 +22,7 @@ function CatalogoContenido() {
   const [patientId, setPatientId] = useState(patientIdInicial);
   const [creandoObservacion, setCreandoObservacion] = useState<string | null>(null);
   const [errorPacientes, setErrorPacientes] = useState<string | null>(null);
+  const [categoriaFiltro, setCategoriaFiltro] = useState<CategoriaTest | "todas">("todas");
 
   // Se cargan por separado: si listar pacientes falla (p.ej. falta un índice
   // de Firestore), no debe tumbar también el catálogo de pruebas.
@@ -39,6 +42,9 @@ function CatalogoContenido() {
   }, [usuario]);
 
   const pacienteSeleccionado = pacientes.find((p) => p.id === patientId) ?? null;
+  const catalogoFiltrado = catalogo.filter(
+    (test) => categoriaFiltro === "todas" || test.categoria === categoriaFiltro
+  );
 
   async function iniciarObservacion(test: TestDefinition) {
     if (!usuario || !pacienteSeleccionado) return;
@@ -87,20 +93,55 @@ function CatalogoContenido() {
         </p>
       </Card>
 
+      <div className="mb-6 flex flex-wrap gap-2">
+        <button
+          onClick={() => setCategoriaFiltro("todas")}
+          className={clsx(
+            "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+            categoriaFiltro === "todas"
+              ? "bg-clinical-slate-800 text-white"
+              : "bg-clinical-slate-100 text-clinical-slate-600 hover:bg-clinical-slate-200"
+          )}
+        >
+          Todas
+        </button>
+        {CATEGORIAS.map((cat) => (
+          <button
+            key={cat.valor}
+            onClick={() => setCategoriaFiltro(cat.valor)}
+            className={clsx(
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+              categoriaFiltro === cat.valor
+                ? cat.pill
+                : "bg-clinical-slate-100 text-clinical-slate-600 hover:bg-clinical-slate-200"
+            )}
+          >
+            <span className={clsx("h-2 w-2 rounded-full", cat.dot)} />
+            {cat.etiqueta}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {catalogo.map((test) => {
+        {catalogoFiltrado.map((test) => {
           const esObservacion = test.tipo === "observacion";
           const deshabilitada = esObservacion && !pacienteSeleccionado;
+          const catInfo = infoCategoria(test.categoria);
           return (
             <Card key={test.id} className="flex flex-col justify-between">
               <div>
-                <div className="mb-2 flex items-center gap-2">
-                  {esObservacion ? (
-                    <Eye className="h-4 w-4 text-clinical-blue-600" />
-                  ) : (
-                    <ClipboardList className="h-4 w-4 text-clinical-blue-600" />
-                  )}
-                  <p className="font-medium text-clinical-slate-800">{test.nombre}</p>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    {esObservacion ? (
+                      <Eye className="h-4 w-4 text-clinical-blue-600" />
+                    ) : (
+                      <ClipboardList className="h-4 w-4 text-clinical-blue-600" />
+                    )}
+                    <p className="font-medium text-clinical-slate-800">{test.nombre}</p>
+                  </div>
+                  <span className={clsx("shrink-0 rounded-full px-2 py-0.5 text-xs font-medium", catInfo.badge)}>
+                    {catInfo.etiqueta}
+                  </span>
                 </div>
                 <p className="mb-4 text-sm text-clinical-slate-500">
                   {esObservacion ? "Observación clínica (solo evaluador)" : "Autoinforme"}
@@ -135,6 +176,9 @@ function CatalogoContenido() {
           <p className="text-clinical-slate-400">
             El catálogo está vacío. Corre <code>npm run seed</code> para cargarlo.
           </p>
+        )}
+        {catalogo.length > 0 && catalogoFiltrado.length === 0 && (
+          <p className="text-clinical-slate-400">No hay pruebas en esta categoría.</p>
         )}
       </div>
     </div>

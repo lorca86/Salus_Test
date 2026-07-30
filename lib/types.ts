@@ -55,11 +55,14 @@ export type AlgoritmoCalculo =
   | "conteo_categoria"
   | "personalizado";
 
+export type CategoriaTest = "psicologia" | "autismo" | "laboral" | "pedagogia";
+
 export interface TestDefinition {
   id: string;
   codigo: string; // PHQ9, GAD7, VARK, ZAVIC, CLEAVER, MCHAT, ABC, ADOS2...
   nombre: string;
   tipo: TipoTest;
+  categoria: CategoriaTest;
   descripcion?: string;
   instrucciones: string;
   tiempoLimiteMin?: number;
