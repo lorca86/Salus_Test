@@ -46,6 +46,11 @@ export interface Pregunta {
   tipo: TipoPregunta;
   opciones: OpcionPregunta[];
   dominio?: string; // p.ej. sub-escala a la que pertenece (para tests multidominio)
+  // Algunos instrumentos agrupan cada ítem en más de una clasificación a la
+  // vez (p.ej. Perfil Sensorial-2: cada ítem cuenta simultáneamente para un
+  // Cuadrante, una Sección sensorial y un Factor escolar). `dominio` sigue
+  // siendo el eje principal; estos son ejes adicionales: eje -> valor.
+  ejesAdicionales?: Record<string, string>;
   reverso?: boolean; // si la puntuación se invierte al calcular
 }
 
@@ -63,6 +68,11 @@ export interface TestDefinition {
   nombre: string;
   tipo: TipoTest;
   categoria: CategoriaTest;
+  // Agrupa variantes del mismo instrumento (p.ej. Perfil Sensorial-2: Breve
+  // y Escolar) bajo una sola tarjeta en el catálogo con selector de versión.
+  grupo?: string;
+  nombreGrupo?: string; // etiqueta del grupo, p.ej. "Perfil Sensorial 2"
+  nombreVariante?: string; // etiqueta corta de esta variante, p.ej. "Breve (SSP)"
   descripcion?: string;
   instrucciones: string;
   tiempoLimiteMin?: number;

@@ -38,9 +38,17 @@ export function calcularPuntuacionesDirectas(
       for (const pregunta of test.preguntas) {
         const dominio = pregunta.dominio ?? "total";
         const valor = respuestas[pregunta.id];
-        porDominio[dominio] =
-          (porDominio[dominio] ?? 0) +
-          aValorNumerico(valor, pregunta.reverso, pregunta.opciones);
+        const puntos = aValorNumerico(valor, pregunta.reverso, pregunta.opciones);
+        porDominio[dominio] = (porDominio[dominio] ?? 0) + puntos;
+        // Ejes adicionales (p.ej. Perfil Sensorial-2: Cuadrante + Sección +
+        // Factor escolar simultáneos): se acumulan aparte con clave "eje:valor"
+        // sin interferir con el dominio principal de arriba.
+        if (pregunta.ejesAdicionales) {
+          for (const [eje, valorEje] of Object.entries(pregunta.ejesAdicionales)) {
+            const clave = `${eje}:${valorEje}`;
+            porDominio[clave] = (porDominio[clave] ?? 0) + puntos;
+          }
+        }
       }
       return porDominio;
     }

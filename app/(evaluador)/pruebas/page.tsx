@@ -9,8 +9,40 @@ import { listarCatalogo } from "@/lib/catalog";
 import { crearAsignacion } from "@/lib/assessments";
 import { CATEGORIAS, infoCategoria } from "@/lib/categorias";
 import type { CategoriaTest, Patient, TestDefinition } from "@/lib/types";
-import { ClipboardList, Eye, Loader2 } from "lucide-react";
+import { ClipboardList, Eye, Loader2, Layers } from "lucide-react";
 import clsx from "clsx";
+
+type EntradaCatalogo =
+  | { tipo: "individual"; test: TestDefinition }
+  | { tipo: "grupo"; grupo: string; nombreGrupo: string; variantes: TestDefinition[] };
+
+// Instrumentos con varias versiones (p.ej. Perfil Sensorial-2: Breve/Escolar)
+// comparten `test.grupo` y se muestran como UNA sola tarjeta con selector de
+// versión, en vez de saturar el catálogo con una tarjeta por variante.
+function agruparCatalogo(tests: TestDefinition[]): EntradaCatalogo[] {
+  const entradas: EntradaCatalogo[] = [];
+  const indicePorGrupo = new Map<string, number>();
+  for (const test of tests) {
+    if (!test.grupo) {
+      entradas.push({ tipo: "individual", test });
+      continue;
+    }
+    const idx = indicePorGrupo.get(test.grupo);
+    if (idx === undefined) {
+      indicePorGrupo.set(test.grupo, entradas.length);
+      entradas.push({
+        tipo: "grupo",
+        grupo: test.grupo,
+        nombreGrupo: test.nombreGrupo ?? test.grupo,
+        variantes: [test],
+      });
+    } else {
+      const entrada = entradas[idx];
+      if (entrada.tipo === "grupo") entrada.variantes.push(test);
+    }
+  }
+  return entradas;
+}
 
 function CatalogoContenido() {
   const { usuario } = useAuth();
@@ -123,52 +155,104 @@ function CatalogoContenido() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {catalogoFiltrado.map((test) => {
-          const esObservacion = test.tipo === "observacion";
-          const deshabilitada = esObservacion && !pacienteSeleccionado;
-          const catInfo = infoCategoria(test.categoria);
-          return (
-            <Card key={test.id} className="flex flex-col justify-between">
-              <div>
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    {esObservacion ? (
-                      <Eye className="h-4 w-4 text-clinical-blue-600" />
-                    ) : (
-                      <ClipboardList className="h-4 w-4 text-clinical-blue-600" />
-                    )}
-                    <p className="font-medium text-clinical-slate-800">{test.nombre}</p>
+        {agruparCatalogo(catalogoFiltrado).map((entrada) => {
+          if (entrada.tipo === "individual") {
+            const test = entrada.test;
+            const esObservacion = test.tipo === "observacion";
+            const deshabilitada = esObservacion && !pacienteSeleccionado;
+            const catInfo = infoCategoria(test.categoria);
+            return (
+              <Card key={test.id} className="flex flex-col justify-between">
+                <div>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      {esObservacion ? (
+                        <Eye className="h-4 w-4 text-clinical-blue-600" />
+                      ) : (
+                        <ClipboardList className="h-4 w-4 text-clinical-blue-600" />
+                      )}
+                      <p className="font-medium text-clinical-slate-800">{test.nombre}</p>
+                    </div>
+                    <span className={clsx("shrink-0 rounded-full px-2 py-0.5 text-xs font-medium", catInfo.badge)}>
+                      {catInfo.etiqueta}
+                    </span>
                   </div>
-                  <span className={clsx("shrink-0 rounded-full px-2 py-0.5 text-xs font-medium", catInfo.badge)}>
-                    {catInfo.etiqueta}
-                  </span>
+                  <p className="mb-4 text-sm text-clinical-slate-500">
+                    {esObservacion ? "Observación clínica (solo evaluador)" : "Autoinforme"}
+                    {test.tiempoLimiteMin ? ` · ~${test.tiempoLimiteMin} min` : ""}
+                  </p>
                 </div>
-                <p className="mb-4 text-sm text-clinical-slate-500">
-                  {esObservacion ? "Observación clínica (solo evaluador)" : "Autoinforme"}
-                  {test.tiempoLimiteMin ? ` · ~${test.tiempoLimiteMin} min` : ""}
-                </p>
+                {esObservacion ? (
+                  <button
+                    disabled={deshabilitada || creandoObservacion === test.id}
+                    onClick={() => iniciarObservacion(test)}
+                    className="rounded-lg bg-clinical-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-clinical-blue-700 disabled:opacity-40"
+                    title={deshabilitada ? "Selecciona un paciente arriba primero" : undefined}
+                  >
+                    {creandoObservacion === test.id ? (
+                      <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+                    ) : (
+                      "Iniciar registro"
+                    )}
+                  </button>
+                ) : (
+                  <a
+                    href={`/pruebas/ejecutar/?testId=${test.id}${patientId ? `&patientId=${patientId}` : ""}`}
+                    className="rounded-lg bg-clinical-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-clinical-blue-700"
+                  >
+                    Aplicar ahora
+                  </a>
+                )}
+              </Card>
+            );
+          }
+
+          // Tarjeta de grupo: una prueba con varias versiones (Perfil Sensorial-2, etc.)
+          const catInfo = infoCategoria(entrada.variantes[0].categoria);
+          return (
+            <Card key={entrada.grupo} className="flex flex-col">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Layers className="h-4 w-4 text-clinical-blue-600" />
+                  <p className="font-medium text-clinical-slate-800">{entrada.nombreGrupo}</p>
+                </div>
+                <span className={clsx("shrink-0 rounded-full px-2 py-0.5 text-xs font-medium", catInfo.badge)}>
+                  {catInfo.etiqueta}
+                </span>
               </div>
-              {esObservacion ? (
-                <button
-                  disabled={deshabilitada || creandoObservacion === test.id}
-                  onClick={() => iniciarObservacion(test)}
-                  className="rounded-lg bg-clinical-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-clinical-blue-700 disabled:opacity-40"
-                  title={deshabilitada ? "Selecciona un paciente arriba primero" : undefined}
-                >
-                  {creandoObservacion === test.id ? (
-                    <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-                  ) : (
-                    "Iniciar registro"
-                  )}
-                </button>
-              ) : (
-                <a
-                  href={`/pruebas/ejecutar/?testId=${test.id}${patientId ? `&patientId=${patientId}` : ""}`}
-                  className="rounded-lg bg-clinical-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-clinical-blue-700"
-                >
-                  Aplicar ahora
-                </a>
-              )}
+              <p className="mb-3 text-sm text-clinical-slate-500">Elige la versión a aplicar:</p>
+              <div className="space-y-2">
+                {entrada.variantes.map((variante) => {
+                  const esObservacion = variante.tipo === "observacion";
+                  const deshabilitada = esObservacion && !pacienteSeleccionado;
+                  return (
+                    <div
+                      key={variante.id}
+                      className="flex items-center justify-between rounded-lg border border-clinical-slate-200 px-3 py-2"
+                    >
+                      <span className="text-sm text-clinical-slate-700">
+                        {variante.nombreVariante ?? variante.nombre}
+                      </span>
+                      {esObservacion ? (
+                        <button
+                          disabled={deshabilitada || creandoObservacion === variante.id}
+                          onClick={() => iniciarObservacion(variante)}
+                          className="rounded-md bg-clinical-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-clinical-blue-700 disabled:opacity-40"
+                        >
+                          {creandoObservacion === variante.id ? "…" : "Iniciar"}
+                        </button>
+                      ) : (
+                        <a
+                          href={`/pruebas/ejecutar/?testId=${variante.id}${patientId ? `&patientId=${patientId}` : ""}`}
+                          className="rounded-md bg-clinical-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-clinical-blue-700"
+                        >
+                          Aplicar
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </Card>
           );
         })}

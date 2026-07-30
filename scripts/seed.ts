@@ -437,6 +437,179 @@ const ADOS2: TestDefinition = {
   })),
 };
 
+// ---------------------------------------------------------------------------
+// Perfil Sensorial-2 (Winnie Dunn; adaptación española © 2016 NCS Pearson /
+// PsychCorp). Instrumento con derechos reservados: cargado con contenido y
+// clave de calificación oficiales proporcionados por el usuario, quien
+// confirmó contar con la licencia correspondiente para su uso.
+//
+// Cada ítem se clasifica en un Cuadrante (Búsqueda/Evitación/Sensibilidad/
+// Registro, el eje principal -> `dominio`) y, según la versión, también en
+// una Sección sensorial y/o un Factor escolar (ejes adicionales). El motor
+// de cálculo (lib/scoring/engine.ts) suma cada ítem en todos sus ejes a la
+// vez mediante `ejesAdicionales`.
+//
+// Bandas de clasificación oficiales (puntuación directa por cuadrante, en
+// ambas versiones se leen igual: Mucho menos / Menos / Como los demás / Más
+// / Mucho más que los demás) — quedan documentadas aquí como referencia para
+// una futura extensión del motor que las calcule automáticamente; por ahora
+// el sistema muestra las puntuaciones directas de cada cuadrante/sección/
+// factor sin clasificar automáticamente el nivel.
+const psOpciones = [
+  { valor: 5, etiqueta: "Casi siempre o siempre (90% o más)" },
+  { valor: 4, etiqueta: "Frecuentemente (75%)" },
+  { valor: 3, etiqueta: "La mitad de las veces (50%)" },
+  { valor: 2, etiqueta: "Ocasionalmente (25%)" },
+  { valor: 1, etiqueta: "Casi nunca o nunca (10% o menos)" },
+  { valor: 0, etiqueta: "No aplicable" },
+];
+
+const PS_BREVE_ITEMS: { texto: string; cuadrante: string; seccion: string }[] = [
+  { texto: "Le cuesta terminar las tareas cuando está puesta la música o la televisión.", cuadrante: "sensibilidad", seccion: "sensorial" },
+  { texto: "Se distrae cuando hay mucho ruido a su alrededor.", cuadrante: "sensibilidad", seccion: "sensorial" },
+  { texto: "No me hace caso o parece ignorarme.", cuadrante: "sensibilidad", seccion: "sensorial" },
+  { texto: "Se muestra angustiado cuando lo arreglan (p. ej., pelea o llora cuando le cortan el pelo, le lavan la cara, le cortan las uñas).", cuadrante: "sensibilidad", seccion: "sensorial" },
+  { texto: "Se pone nervioso cuando está de pie cerca de otras personas (p. ej., hacer cola).", cuadrante: "sensibilidad", seccion: "sensorial" },
+  { texto: "Toca tanto a las personas o las cosas que llega a molestar a los demás.", cuadrante: "busqueda", seccion: "sensorial" },
+  { texto: "Se mueve tanto que afecta a sus actividades diarias (p. ej., no puede estar sentado sin moverse, quedarse quieto).", cuadrante: "busqueda", seccion: "sensorial" },
+  { texto: "Se balancea mientras está sentado en la silla, en el suelo o de pie.", cuadrante: "busqueda", seccion: "sensorial" },
+  { texto: "Pierde el equilibrio inesperadamente cuando camina por una superficie irregular.", cuadrante: "registro", seccion: "sensorial" },
+  { texto: "Choca con las cosas, sin darse cuenta de los objetos o personas que hay en su camino.", cuadrante: "registro", seccion: "sensorial" },
+  { texto: "Muestra una clara preferencia por ciertos sabores.", cuadrante: "busqueda", seccion: "sensorial" },
+  { texto: "Se mueve con rigidez.", cuadrante: "registro", seccion: "sensorial" },
+  { texto: "Se cansa fácilmente, en especial cuando está de pie o mantiene el cuerpo en una misma posición.", cuadrante: "registro", seccion: "sensorial" },
+  { texto: "Se estira echándose sobre los muebles o las personas.", cuadrante: "busqueda", seccion: "sensorial" },
+  { texto: "Parece propenso a tener accidentes.", cuadrante: "registro", seccion: "conductual" },
+  { texto: "Puede ser terco y poco dispuesto a colaborar.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Coge berrinches.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Se muestra reacio a tener contacto visual conmigo o con otras personas.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Requiere refuerzo positivo para volver a enfrentarse a los retos.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Tiene fuertes arrebatos emocionales cuando no puede terminar una tarea.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Le cuesta interpretar el lenguaje corporal o las expresiones faciales.", cuadrante: "sensibilidad", seccion: "conductual" },
+  { texto: "Se frustra fácilmente.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Tiene miedos que afectan a sus actividades diarias.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Se angustia cuando cambian los planes, las rutinas o las expectativas.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Necesita más protección en la vida que otros niños de su edad (p. ej., es indefenso física o emocionalmente).", cuadrante: "sensibilidad", seccion: "conductual" },
+  { texto: "Interactúa o participa menos en los grupos que otros niños de su edad.", cuadrante: "evitacion", seccion: "conductual" },
+  { texto: "Pierde el contacto visual conmigo cuando interactúo con él en el día a día.", cuadrante: "registro", seccion: "conductual" },
+  { texto: "Le cuesta prestar atención.", cuadrante: "sensibilidad", seccion: "conductual" },
+  { texto: "Aparta la mirada de sus tareas para observar lo que sucede a su alrededor.", cuadrante: "sensibilidad", seccion: "conductual" },
+  { texto: "Se muestra indiferente en ambientes con mucha actividad (p. ej., ajeno a todo lo que ocurre).", cuadrante: "registro", seccion: "conductual" },
+  { texto: "Observa a todas las personas que se mueven por la habitación.", cuadrante: "busqueda", seccion: "conductual" },
+  { texto: "Pasa de hacer una cosa a hacer otra, tanto que afecta a sus actividades.", cuadrante: "busqueda", seccion: "conductual" },
+  { texto: "Se pierde fácilmente.", cuadrante: "sensibilidad", seccion: "conductual" },
+  { texto: "Lo pasa mal cuando ha de buscar algo en un entorno complejo (p. ej., zapatos en una habitación desordenada, un lápiz en un cajón lleno de trastos).", cuadrante: "registro", seccion: "conductual" },
+];
+
+const PERFIL_SENSORIAL_BREVE: TestDefinition = {
+  id: "perfil_sensorial_breve",
+  codigo: "PS2_BREVE",
+  nombre: "Perfil Sensorial-2 · Breve (SSP)",
+  tipo: "autoinforme",
+  categoria: "autismo",
+  grupo: "perfil_sensorial",
+  nombreGrupo: "Perfil Sensorial 2",
+  nombreVariante: "Breve (SSP)",
+  descripcion:
+    "Cuestionario para padres o cuidador, de 3:0 a 14:11 años (Winnie Dunn). Versión breve del " +
+    "Perfil Sensorial-2.",
+  instrucciones:
+    "Marque la opción que describa mejor la frecuencia con la que el niño muestra cada " +
+    "comportamiento cuando se le presenta la oportunidad.",
+  algoritmoCalculo: "suma_por_dominio",
+  requiereBaremo: false,
+  dominios: ["busqueda", "evitacion", "sensibilidad", "registro"],
+  activo: true,
+  preguntas: PS_BREVE_ITEMS.map((item, i) => ({
+    id: `psbreve_${i + 1}`,
+    texto: item.texto,
+    tipo: "likert" as const,
+    dominio: item.cuadrante,
+    ejesAdicionales: { seccion: item.seccion },
+    opciones: psOpciones,
+  })),
+};
+
+const PS_ESCOLAR_ITEMS: { texto: string; cuadrante: string; seccion?: string; factorEscolar: string }[] = [
+  { texto: "Se pierde intentando seguir las instrucciones orales más que otros alumnos de su edad.", cuadrante: "registro", seccion: "auditivo", factorEscolar: "1" },
+  { texto: "No me presta atención o parece ignorarme.", cuadrante: "registro", seccion: "auditivo", factorEscolar: "1" },
+  { texto: "Le cuesta terminar las tareas en ambientes ruidosos.", cuadrante: "registro", seccion: "auditivo", factorEscolar: "3" },
+  { texto: "Les dice a los demás que se callen.", cuadrante: "sensibilidad", seccion: "auditivo", factorEscolar: "2" },
+  { texto: "Se angustia en las actividades grupales, a la hora de comer o en otros actos colectivos.", cuadrante: "evitacion", seccion: "auditivo", factorEscolar: "3" },
+  { texto: "Reacciona intensamente a sonidos fuertes o inesperados (p. ej., alarma de incendio, libros que caen al suelo, portazos, avisos por megafonía, timbres).", cuadrante: "sensibilidad", seccion: "auditivo", factorEscolar: "3" },
+  { texto: "Tiene dificultad para participar en actividades de grupo cuando hay muchas personas hablando.", cuadrante: "sensibilidad", seccion: "auditivo", factorEscolar: "3" },
+  { texto: "Se pierde intentando seguir las instrucciones escritas o las demostraciones más que otros alumnos de su edad.", cuadrante: "registro", seccion: "visual", factorEscolar: "1" },
+  { texto: "Le cuesta tener los materiales necesarios preparados para usarlos durante el día.", cuadrante: "registro", seccion: "visual", factorEscolar: "1" },
+  { texto: "Deja en blanco respuestas de una hoja llena de ejercicios a pesar de sabérselas.", cuadrante: "registro", seccion: "visual", factorEscolar: "1" },
+  { texto: "Mira a las personas que se mueven por la habitación.", cuadrante: "busqueda", seccion: "visual", factorEscolar: "2" },
+  { texto: "Aparta la mirada de sus tareas para observar lo que sucede a su alrededor.", cuadrante: "sensibilidad", seccion: "visual", factorEscolar: "2" },
+  { texto: "Pierde el contacto visual conmigo cuando interactúo con él en el día a día.", cuadrante: "registro", seccion: "visual", factorEscolar: "4" },
+  { texto: "Le atraen las pantallas (TV, ordenador, móvil, etc.) con imágenes de colores vivos y en movimiento.", cuadrante: "busqueda", seccion: "visual", factorEscolar: "2" },
+  { texto: "Se acerca demasiado a las personas cuando hablan cara a cara.", cuadrante: "busqueda", seccion: "tactil", factorEscolar: "1" },
+  { texto: "Parece no darse cuenta de que tiene las manos o la cara sucias.", cuadrante: "registro", seccion: "tactil", factorEscolar: "1" },
+  { texto: "Toca tanto a las personas o las cosas que llega a molestar a los demás.", cuadrante: "busqueda", seccion: "tactil", factorEscolar: "1" },
+  { texto: "Muestra la necesidad de tocar cosas, superficies o texturas (p. ej., quiere tocarlo todo).", cuadrante: "busqueda", seccion: "tactil", factorEscolar: "2" },
+  { texto: "Quiere limpiarse las manos rápidamente cuando hace alguna tarea que ensucia.", cuadrante: "sensibilidad", seccion: "tactil", factorEscolar: "2" },
+  { texto: "Se enfada con facilidad si se hace un poco de daño (p. ej., al golpearse con algo, hacerse un rasguño o cortarse).", cuadrante: "sensibilidad", seccion: "tactil", factorEscolar: "2" },
+  { texto: "Usa sólo las puntas de los dedos al realizar tareas de manipulación.", cuadrante: "sensibilidad", seccion: "tactil", factorEscolar: "3" },
+  { texto: "Se estremece o se aparta cuando alguien lo toca o se le acerca mucho.", cuadrante: "evitacion", seccion: "tactil", factorEscolar: "3" },
+  { texto: "No sujeta adecuadamente los materiales cuando trabaja (p. ej., no sujeta la hoja de papel en la que escribe).", cuadrante: "registro", seccion: "movimiento", factorEscolar: "4" },
+  { texto: "Juega con las cosas o las toquetea (p. ej., lápices, libretas, carpetas).", cuadrante: "busqueda", seccion: "movimiento", factorEscolar: "1" },
+  { texto: "Está inquieto o molesta a los demás cuando está de pie en una fila o cerca de otras personas (p. ej., al ir en autobús, entrar en la escuela, estar sentado en reuniones escolares, actividades grupales, etc.).", cuadrante: "sensibilidad", seccion: "movimiento", factorEscolar: "1" },
+  { texto: "Se sienta incorrectamente en la silla (p. ej., repanchingado, curvado, medio tumbado).", cuadrante: "registro", seccion: "movimiento", factorEscolar: "1" },
+  { texto: "Choca con las cosas, sin darse cuenta de los objetos o personas que hay en su camino.", cuadrante: "registro", seccion: "movimiento", factorEscolar: "1" },
+  { texto: "No para quieto.", cuadrante: "busqueda", seccion: "movimiento", factorEscolar: "1" },
+  { texto: "Parece tener un sinfín de razones para dirigirse al profesor.", cuadrante: "busqueda", seccion: "movimiento", factorEscolar: "2" },
+  { texto: "Participa en las tareas o actividades físicamente activas con un ritmo más lento que otros alumnos de su edad.", cuadrante: "evitacion", seccion: "movimiento", factorEscolar: "4" },
+  { texto: "Está de pie o sentado a un lado del patio durante el recreo.", cuadrante: "evitacion", factorEscolar: "4" },
+  { texto: "Rechaza participar en los juegos de equipo (p. ej., fútbol, baloncesto).", cuadrante: "evitacion", factorEscolar: "4" },
+  { texto: "Hace las cosas de una forma más complicada de lo necesario (p. ej., pierde el tiempo, se mueve lentamente).", cuadrante: "registro", seccion: "conductual", factorEscolar: "3" },
+  { texto: "Parece cansado (p. ej., no tiene energía, está decaído).", cuadrante: "registro", seccion: "conductual", factorEscolar: "4" },
+  { texto: "Podría decirse que reacciona de forma exagerada o dramática en comparación con otros alumnos de su edad.", cuadrante: "sensibilidad", seccion: "conductual", factorEscolar: "2" },
+  { texto: "Carece de sentido del humor.", cuadrante: "evitacion", seccion: "conductual", factorEscolar: "4" },
+  { texto: "Podría decirse que es inflexible en comparación con otros alumnos de su edad.", cuadrante: "evitacion", seccion: "conductual", factorEscolar: "4" },
+  { texto: "Se angustia cuando cambian los planes, las rutinas o las expectativas.", cuadrante: "evitacion", seccion: "conductual", factorEscolar: "3" },
+  { texto: "Puede ser terco y poco dispuesto a colaborar.", cuadrante: "sensibilidad", seccion: "conductual", factorEscolar: "3" },
+  { texto: "Persevera en su conducta hasta el punto de afectar a la participación en actividades (p. ej., no es capaz de variar su velocidad o ritmo).", cuadrante: "evitacion", seccion: "conductual", factorEscolar: "3" },
+  { texto: "Se retrae cuando cambia el entorno o una rutina.", cuadrante: "evitacion", seccion: "conductual", factorEscolar: "3" },
+  { texto: "Se frustra fácilmente.", cuadrante: "evitacion", seccion: "conductual", factorEscolar: "3" },
+  { texto: "Interactúa o participa menos en los grupos que otros alumnos de su edad.", cuadrante: "evitacion", seccion: "conductual", factorEscolar: "4" },
+  { texto: "Le molesta que no se cumplan las reglas.", cuadrante: "sensibilidad", factorEscolar: "2" },
+];
+
+const PERFIL_SENSORIAL_ESCOLAR: TestDefinition = {
+  id: "perfil_sensorial_escolar",
+  codigo: "PS2_ESCOLAR",
+  nombre: "Perfil Sensorial-2 · Escolar (3:0 a 14:11 años)",
+  tipo: "autoinforme",
+  categoria: "autismo",
+  grupo: "perfil_sensorial",
+  nombreGrupo: "Perfil Sensorial 2",
+  nombreVariante: "Escolar (3-14 años)",
+  descripcion:
+    "Cuestionario para el profesor, de 3:0 a 14:11 años (Winnie Dunn). Además del Cuadrante " +
+    "(Búsqueda/Evitación/Sensibilidad/Registro), clasifica cada ítem en una Sección sensorial " +
+    "(Auditivo/Visual/Táctil/Movimiento/Conductual) y un Factor escolar (1 a 4).",
+  instrucciones:
+    "Marque la opción que describa mejor la frecuencia con la que el alumno muestra cada " +
+    "comportamiento cuando se le presenta la oportunidad.",
+  algoritmoCalculo: "suma_por_dominio",
+  requiereBaremo: false,
+  dominios: ["busqueda", "evitacion", "sensibilidad", "registro"],
+  activo: true,
+  preguntas: PS_ESCOLAR_ITEMS.map((item, i) => ({
+    id: `psescolar_${i + 1}`,
+    texto: item.texto,
+    tipo: "likert" as const,
+    dominio: item.cuadrante,
+    ejesAdicionales: {
+      factorEscolar: item.factorEscolar,
+      ...(item.seccion ? { seccion: item.seccion } : {}),
+    },
+    opciones: psOpciones,
+  })),
+};
+
 const CATALOGO: TestDefinition[] = [
   PHQ9,
   GAD7,
@@ -450,6 +623,8 @@ const CATALOGO: TestDefinition[] = [
   PF16,
   ABC,
   ADOS2,
+  PERFIL_SENSORIAL_BREVE,
+  PERFIL_SENSORIAL_ESCOLAR,
 ];
 
 const BAREMOS_EJEMPLO: NormativeTable[] = [
