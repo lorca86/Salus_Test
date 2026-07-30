@@ -297,31 +297,117 @@ const PF16: TestDefinition = {
   ],
 };
 
+// Asignación oficial de ítems a subescalas (hoja de corrección ABC-ECA,
+// Aman, Singh, Stewart y Field, 1995). Puntuación máxima por subescala:
+// Agitación 45 (15 ítems), Letargia 48 (16), Estereotipias 21 (7),
+// Hiperactividad 48 (16), Locuacidad 12 (4).
+const ABC_DOMINIO_POR_ITEM: Record<number, string> = {
+  2: "agitacion", 4: "agitacion", 8: "agitacion", 10: "agitacion", 14: "agitacion",
+  19: "agitacion", 25: "agitacion", 29: "agitacion", 34: "agitacion", 36: "agitacion",
+  41: "agitacion", 47: "agitacion", 50: "agitacion", 52: "agitacion", 57: "agitacion",
+  3: "letargia", 5: "letargia", 12: "letargia", 16: "letargia", 20: "letargia",
+  23: "letargia", 26: "letargia", 30: "letargia", 32: "letargia", 37: "letargia",
+  40: "letargia", 42: "letargia", 43: "letargia", 53: "letargia", 55: "letargia", 58: "letargia",
+  6: "estereotipias", 11: "estereotipias", 17: "estereotipias", 27: "estereotipias",
+  35: "estereotipias", 45: "estereotipias", 49: "estereotipias",
+  1: "hiperactividad", 7: "hiperactividad", 13: "hiperactividad", 15: "hiperactividad",
+  18: "hiperactividad", 21: "hiperactividad", 24: "hiperactividad", 28: "hiperactividad",
+  31: "hiperactividad", 38: "hiperactividad", 39: "hiperactividad", 44: "hiperactividad",
+  48: "hiperactividad", 51: "hiperactividad", 54: "hiperactividad", 56: "hiperactividad",
+  9: "locuacidad", 22: "locuacidad", 33: "locuacidad", 46: "locuacidad",
+};
+
+const ABC_ITEMS = [
+  "Excesiva actividad en el Centro",
+  "Autoagresividad",
+  "Apatía, pereza, inactividad",
+  "Agresividad hacia otros pacientes o el personal",
+  "Búsqueda de aislamiento del resto de sujetos",
+  "Movimientos recurrentes sin sentido",
+  'Ser demasiado "escandaloso" o "ruidoso"',
+  'Gritar "sin venir a cuento"',
+  "Hablar excesivamente",
+  "Rabietas",
+  "Movimientos estereotipados o repetidos",
+  "Ensimismamiento, mirada perdida",
+  "Impulsividad (realiza actos sin pensar)",
+  "Irritabilidad",
+  "Inquietud, incapacidad de estar quieto",
+  "Inhibición; prefiere actividades solitarias",
+  "Conductas extrañas o estrambóticas",
+  "Desobediencia; dificultad para controlarlo",
+  "Gritos inoportunos",
+  "Expresión facial rígida; falta de reactividad emocional",
+  "Molesta a los otros",
+  "Lenguaje repetitivo",
+  "No hace nada; se sienta y mira a otros",
+  "No coopera con los demás",
+  "Humor deprimido",
+  "Se resiste a cualquier forma de contacto físico",
+  "Vuelve la cabeza hacia atrás continuamente",
+  "No presta atención a las instrucciones",
+  "Sus demandas deben ser satisfechas inmediatamente",
+  "Se aísla de sí mismo/a del resto",
+  "Desbarata las actividades de grupo",
+  "Se sienta o permanece en una misma posición mucho tiempo",
+  "Habla consigo mismo en voz alta",
+  "Llora ante mínimos disgustos o pequeños golpes",
+  "Realiza movimientos repetitivos de manos, cuerpo o cabeza",
+  "Cambia de humor repentinamente",
+  "No responde a las actividades del Centro",
+  "No se queda quieto en su sitio durante las clases",
+  "Procura no quedarse solo, aún por pequeños espacios de tiempo",
+  "Es difícil acercarse o establecer relación con él",
+  "Llora y chilla de manera inapropiada",
+  "Prefiere estar solo",
+  "No intenta comunicarse mediante palabra ni gestos",
+  "Se distrae fácilmente",
+  "Mueve o agita las extremidades repetidamente",
+  "Repite una palabra o una frase una y otra vez",
+  "Da patadas mientras tira objetos o da portazos",
+  "Corre o salta constantemente por la habitación",
+  "Mueve el cuerpo hacia delante y hacia atrás una y otra vez",
+  "Se hace heridas a sí mismo/a de forma deliberada",
+  "No presta atención cuando le hablan",
+  "Es violento consigo mismo/a",
+  "Es inactivo, nunca se mueve de forma espontánea",
+  "Tiende a ser excesivamente activo",
+  "Responde de forma negativa a las muestras de cariño",
+  "Ignora las órdenes de forma deliberada",
+  "Coge rabietas cuando no consigue lo que quiere",
+  "Presenta poca interacción con los otros",
+];
+
+const abcOpciones = [
+  { valor: 0, etiqueta: "No presenta este problema en absoluto" },
+  { valor: 1, etiqueta: "Problema leve" },
+  { valor: 2, etiqueta: "Problema de gravedad moderada" },
+  { valor: 3, etiqueta: "Problema importante" },
+];
+
 const ABC: TestDefinition = {
   id: "abc",
   codigo: "ABC",
-  nombre: "ABC (Escala de Comportamiento Aberrante)",
+  nombre: "ABC-ECA (Escala de Conductas Anómalas)",
   tipo: "autoinforme",
   categoria: "autismo",
-  descripcion: "Escala de comportamiento aberrante, respondida por cuidador/evaluador.",
-  instrucciones: "Califique la frecuencia/intensidad de cada conducta observada.",
+  descripcion:
+    "Escala de Conductas Anómalas (Aman, Singh, Stewart y Field, 1995), respondida por el " +
+    "cuidador/evaluador según la observación del comportamiento del paciente.",
+  instrucciones:
+    "Evalúe la conducta del sujeto durante las últimas semanas. Para cada ítem decida el grado del " +
+    "problema: 0 = No presenta este problema en absoluto, 1 = Problema leve, 2 = Problema de gravedad " +
+    "moderada, 3 = Problema importante.",
   algoritmoCalculo: "suma_por_dominio",
   requiereBaremo: true,
-  dominios: ["irritabilidad", "letargo", "conducta_estereotipada", "hiperactividad", "habla_inapropiada"],
+  dominios: ["agitacion", "letargia", "estereotipias", "hiperactividad", "locuacidad"],
   activo: true,
-  preguntas: Array.from({ length: 10 }, (_, i) => ({
+  preguntas: ABC_ITEMS.map((texto, i) => ({
     id: `abc_${i + 1}`,
-    texto: `[Reactivo ABC #${i + 1} — conducta observada]`,
+    texto,
     tipo: "likert" as const,
-    dominio: ["irritabilidad", "letargo", "conducta_estereotipada", "hiperactividad", "habla_inapropiada"][
-      i % 5
-    ],
-    opciones: [
-      { valor: 0, etiqueta: "No es un problema" },
-      { valor: 1, etiqueta: "Problema leve" },
-      { valor: 2, etiqueta: "Problema moderado" },
-      { valor: 3, etiqueta: "Problema severo" },
-    ],
+    dominio: ABC_DOMINIO_POR_ITEM[i + 1],
+    opciones: abcOpciones,
   })),
 };
 
