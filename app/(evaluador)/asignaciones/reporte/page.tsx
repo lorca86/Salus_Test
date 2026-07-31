@@ -145,6 +145,22 @@ function ReporteContenido() {
             </div>
           </>
         )}
+        {(() => {
+          const clasificacionesSueltas = Object.entries(resultado.clasificaciones ?? {}).filter(
+            ([k]) => !(k in resultado.puntuacionesDirectas)
+          );
+          if (clasificacionesSueltas.length === 0) return null;
+          return (
+            <div className="mb-3 space-y-1 text-sm">
+              {clasificacionesSueltas.map(([k, v]) => (
+                <div key={k} className="flex justify-between rounded-md bg-clinical-slate-50 px-3 py-1.5">
+                  <span className="text-clinical-slate-500">{k.replace(/_/g, " ")}</span>
+                  <span className="font-medium text-clinical-slate-800">{v}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
         <p className="text-sm text-clinical-slate-600">{resultado.resumenTexto}</p>
       </Card>
     </div>

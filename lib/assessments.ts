@@ -12,6 +12,7 @@ import {
 import { db } from "@/lib/firebase";
 import { generarTokenAcceso } from "@/lib/tokens";
 import { calcularResultado } from "@/lib/scoring/engine";
+import { calcularADOS2 } from "@/lib/scoring/custom/ados2";
 import type {
   Assessment,
   ModalidadAplicacion,
@@ -128,4 +129,57 @@ export async function crearYFinalizarAplicacionDirecta(params: {
   const resultRef = await addDoc(collection(db, "results"), resultadoData);
 
   return { assessment, resultado: { id: resultRef.id, ...resultadoData } };
+}
+
+function edadEnMeses(fechaNacimientoISO: string, fechaReferencia: Date): number {
+  const nacimiento = new Date(fechaNacimientoISO);
+  let meses =
+    (fechaReferencia.getFullYear() - nacimiento.getFullYear()) * 12 +
+    (fechaReferencia.getMonth() - nacimiento.getMonth());
+  if (fechaReferencia.getDate() < nacimiento.getDate()) meses--;
+  return meses;
+}
+
+// Finaliza una observación con algoritmo personalizado (p.ej. ADOS-2), cuyo
+// cálculo no es una suma genérica por dominio sino un algoritmo propio por
+// módulo que además puede depender de la edad exacta en MESES del paciente
+// (no solo el año, como en el resto del catálogo) — de ahí que reciba el
+// Patient completo en vez de los campos denormalizados del assessment.
+export async function finalizarObservacionPersonalizada(
+  assessment: Assessment,
+  test: TestDefinition,
+  paciente: Pick<Patient, "fechaNacimiento">
+): Promise<Result> {
+  const meses = edadEnMeses(paciente.fechaNacimiento, new Date());
+  const { puntuacionesDirectas, clasificaciones, nivelRiesgo } = calcularADOS2(
+    test.codigo,
+    assessment.respuestas,
+    meses
+  );
+
+  const entradas = Object.entries(puntuacionesDirectas)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join(", ");
+  const resumenTexto = `${test.nombre} — ${entradas}. ${Object.values(clasificaciones).join(" · ")}`;
+
+  const resultadoData: Omit<Result, "id"> = {
+    assessmentId: assessment.id,
+    patientId: assessment.patientId,
+    testId: test.id,
+    puntuacionesDirectas,
+    puntuacionesConvertidas: {},
+    percentiles: {},
+    clasificaciones,
+    nivelRiesgo,
+    resumenTexto,
+    fechaCalculo: new Date().toISOString(),
+  };
+
+  const resultRef = await addDoc(collection(db, "results"), resultadoData);
+  await updateDoc(doc(db, "assessments", assessment.id), {
+    estado: "completado",
+    completadoEn: new Date().toISOString(),
+  });
+
+  return { id: resultRef.id, ...resultadoData };
 }

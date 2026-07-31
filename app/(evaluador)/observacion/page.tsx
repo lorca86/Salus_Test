@@ -4,7 +4,12 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { obtenerAsignacion, guardarRespuesta, finalizarAsignacion } from "@/lib/assessments";
+import {
+  obtenerAsignacion,
+  guardarRespuesta,
+  finalizarAsignacion,
+  finalizarObservacionPersonalizada,
+} from "@/lib/assessments";
 import { obtenerTest } from "@/lib/catalog";
 import { obtenerPaciente } from "@/lib/patients";
 import type { Assessment, Patient, TestDefinition } from "@/lib/types";
@@ -46,7 +51,11 @@ function ObservacionContenido() {
     if (!assessment || !test || !paciente) return;
     setFinalizando(true);
     try {
-      await finalizarAsignacion({ ...assessment, respuestas }, test);
+      if (test.algoritmoCalculo === "personalizado") {
+        await finalizarObservacionPersonalizada({ ...assessment, respuestas }, test, paciente);
+      } else {
+        await finalizarAsignacion({ ...assessment, respuestas }, test);
+      }
       setCompletado(true);
     } finally {
       setFinalizando(false);
