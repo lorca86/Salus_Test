@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { RiskBadge } from "@/components/ui/RiskBadge";
 import { crearYFinalizarAplicacionDirecta } from "@/lib/assessments";
 import {
+  calcularClasificaciones,
   calcularPercentiles,
   calcularPuntuacionesDirectas,
   determinarNivelRiesgo,
@@ -63,8 +64,9 @@ export function LiveTestRunner({
     const percentiles = pacienteSeleccionado
       ? calcularPercentiles(tablas, test, pacienteSeleccionado, puntuacionesDirectas)
       : {};
-    const nivelRiesgo = determinarNivelRiesgo(test, puntuacionesDirectas, percentiles);
-    return { puntuacionesDirectas, percentiles, nivelRiesgo };
+    const clasificaciones = calcularClasificaciones(test, puntuacionesDirectas);
+    const nivelRiesgo = determinarNivelRiesgo(test, puntuacionesDirectas, percentiles, clasificaciones);
+    return { puntuacionesDirectas, percentiles, clasificaciones, nivelRiesgo };
   }, [test, respuestas, pacienteSeleccionado, tablas]);
 
   function responder(valor: number | string) {
@@ -130,9 +132,14 @@ export function LiveTestRunner({
           <p className="mb-2 text-sm font-medium text-clinical-slate-700">Puntuaciones directas</p>
           <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
             {Object.entries(preview.puntuacionesDirectas).map(([k, v]) => (
-              <div key={k} className="flex justify-between rounded-md bg-clinical-slate-50 px-3 py-1.5">
-                <span className="text-clinical-slate-500">{k}</span>
-                <span className="font-medium text-clinical-slate-800">{v}</span>
+              <div key={k} className="flex flex-col rounded-md bg-clinical-slate-50 px-3 py-1.5">
+                <div className="flex justify-between">
+                  <span className="text-clinical-slate-500">{k}</span>
+                  <span className="font-medium text-clinical-slate-800">{v}</span>
+                </div>
+                {preview.clasificaciones[k] && (
+                  <span className="text-xs text-clinical-blue-600">{preview.clasificaciones[k]}</span>
+                )}
               </div>
             ))}
           </div>

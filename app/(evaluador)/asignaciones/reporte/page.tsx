@@ -52,7 +52,9 @@ function ReporteContenido() {
       `Fecha de cálculo: ${new Date(resultado.fechaCalculo).toLocaleString("es-MX")}`,
       "-------------------------------------",
       "Puntuaciones directas:",
-      ...Object.entries(resultado.puntuacionesDirectas).map(([k, v]) => `  ${k}: ${v}`),
+      ...Object.entries(resultado.puntuacionesDirectas).map(
+        ([k, v]) => `  ${k}: ${v}${resultado.clasificaciones?.[k] ? ` (${resultado.clasificaciones[k]})` : ""}`
+      ),
       ...(Object.keys(resultado.percentiles).length
         ? ["Percentiles / escalares:", ...Object.entries(resultado.percentiles).map(([k, v]) => `  ${k}: ${v}`)]
         : []),
@@ -119,9 +121,14 @@ function ReporteContenido() {
         <p className="mb-2 text-sm font-medium text-clinical-slate-700">Puntuaciones directas</p>
         <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
           {Object.entries(resultado.puntuacionesDirectas).map(([k, v]) => (
-            <div key={k} className="flex justify-between rounded-md bg-clinical-slate-50 px-3 py-1.5">
-              <span className="text-clinical-slate-500">{k}</span>
-              <span className="font-medium text-clinical-slate-800">{v}</span>
+            <div key={k} className="flex flex-col rounded-md bg-clinical-slate-50 px-3 py-1.5">
+              <div className="flex justify-between">
+                <span className="text-clinical-slate-500">{k}</span>
+                <span className="font-medium text-clinical-slate-800">{v}</span>
+              </div>
+              {resultado.clasificaciones?.[k] && (
+                <span className="text-xs text-clinical-blue-600">{resultado.clasificaciones[k]}</span>
+              )}
             </div>
           ))}
         </div>

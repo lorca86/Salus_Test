@@ -125,6 +125,78 @@ export function calcularPercentiles(
   return percentiles;
 }
 
+// --- 2b. Clasificación por bandas (Perfil Sensorial-2) -------------------------
+
+interface BandaClasificacion {
+  max: number;
+  etiqueta: string;
+}
+
+function bandas5(a: number, b: number, c: number, d: number, e: number): BandaClasificacion[] {
+  return [
+    { max: a, etiqueta: "Mucho menos que los demás" },
+    { max: b, etiqueta: "Menos que los demás" },
+    { max: c, etiqueta: "Como los demás" },
+    { max: d, etiqueta: "Más que los demás" },
+    { max: e, etiqueta: "Mucho más que los demás" },
+  ];
+}
+
+// Factor escolar 4 no tiene banda "Mucho menos que los demás" (el manual
+// indica que no hay puntuaciones disponibles para esa categoría).
+function bandas4(a: number, b: number, c: number, d: number): BandaClasificacion[] {
+  return [
+    { max: a, etiqueta: "Menos que los demás" },
+    { max: b, etiqueta: "Como los demás" },
+    { max: c, etiqueta: "Más que los demás" },
+    { max: d, etiqueta: "Mucho más que los demás" },
+  ];
+}
+
+// Puntos de corte oficiales del sistema de clasificación del Perfil
+// Sensorial-2 (páginas de resumen del manual, Breve y Escolar).
+const BANDAS_PERFIL_SENSORIAL: Record<string, Record<string, BandaClasificacion[]>> = {
+  PS2_BREVE: {
+    busqueda: bandas5(1, 6, 17, 22, 35),
+    evitacion: bandas5(2, 8, 20, 26, 45),
+    sensibilidad: bandas5(3, 9, 24, 31, 50),
+    registro: bandas5(2, 5, 14, 18, 40),
+    "seccion:sensorial": bandas5(5, 12, 27, 34, 70),
+    "seccion:conductual": bandas5(7, 18, 43, 55, 100),
+  },
+  PS2_ESCOLAR: {
+    busqueda: bandas5(2, 8, 21, 27, 40),
+    evitacion: bandas5(0, 7, 24, 31, 60),
+    sensibilidad: bandas5(5, 11, 24, 30, 55),
+    registro: bandas5(0, 9, 27, 36, 65),
+    "seccion:auditivo": bandas5(0, 5, 15, 19, 35),
+    "seccion:visual": bandas5(1, 7, 18, 24, 35),
+    "seccion:tactil": bandas5(1, 5, 16, 20, 40),
+    "seccion:movimiento": bandas5(0, 6, 19, 25, 40),
+    "seccion:conductual": bandas5(0, 7, 23, 30, 55),
+    "factorEscolar:1": bandas5(1, 10, 27, 35, 65),
+    "factorEscolar:2": bandas5(4, 11, 26, 33, 50),
+    "factorEscolar:3": bandas5(2, 9, 24, 31, 60),
+    "factorEscolar:4": bandas4(5, 18, 24, 45),
+  },
+};
+
+export function calcularClasificaciones(
+  test: TestDefinition,
+  puntuacionesDirectas: Record<string, number>
+): Record<string, string> {
+  const tabla = BANDAS_PERFIL_SENSORIAL[test.codigo];
+  if (!tabla) return {};
+  const clasificaciones: Record<string, string> = {};
+  for (const [dominio, puntuacion] of Object.entries(puntuacionesDirectas)) {
+    const bandas = tabla[dominio];
+    if (!bandas) continue;
+    const encontrada = bandas.find((b) => puntuacion <= b.max);
+    clasificaciones[dominio] = encontrada?.etiqueta ?? bandas[bandas.length - 1].etiqueta;
+  }
+  return clasificaciones;
+}
+
 // --- 3. Nivel de riesgo (semáforo) --------------------------------------------
 
 // Puntos de corte clínicos conocidos para los autoinformes más comunes.
@@ -153,13 +225,21 @@ const CORTES_CLINICOS: Record<string, { max: number; nivel: NivelRiesgo }[]> = {
 export function determinarNivelRiesgo(
   test: TestDefinition,
   puntuacionesDirectas: Record<string, number>,
-  percentiles: Record<string, number>
+  percentiles: Record<string, number>,
+  clasificaciones?: Record<string, string>
 ): NivelRiesgo {
   const total = puntuacionesDirectas.total ?? Object.values(puntuacionesDirectas)[0] ?? 0;
   const cortes = CORTES_CLINICOS[test.codigo];
   if (cortes) {
     const encontrado = cortes.find((c) => total <= c.max);
     return encontrado?.nivel ?? "severo";
+  }
+
+  if (clasificaciones && Object.keys(clasificaciones).length > 0) {
+    const etiquetas = Object.values(clasificaciones);
+    if (etiquetas.some((e) => e.startsWith("Mucho"))) return "severo";
+    if (etiquetas.some((e) => e === "Más que los demás" || e === "Menos que los demás")) return "moderado";
+    return "minimo";
   }
 
   const percentilMax = Math.max(0, ...Object.values(percentiles));
@@ -180,7 +260,8 @@ export function calcularResultado(
 ): Omit<Result, "id"> {
   const puntuacionesDirectas = calcularPuntuacionesDirectas(test, assessment.respuestas);
   const percentiles = calcularPercentiles(tablasBaremo, test, paciente, puntuacionesDirectas);
-  const nivelRiesgo = determinarNivelRiesgo(test, puntuacionesDirectas, percentiles);
+  const clasificaciones = calcularClasificaciones(test, puntuacionesDirectas);
+  const nivelRiesgo = determinarNivelRiesgo(test, puntuacionesDirectas, percentiles, clasificaciones);
 
   return {
     assessmentId: assessment.id,
@@ -189,6 +270,7 @@ export function calcularResultado(
     puntuacionesDirectas,
     puntuacionesConvertidas: percentiles,
     percentiles,
+    ...(Object.keys(clasificaciones).length > 0 ? { clasificaciones } : {}),
     nivelRiesgo,
     resumenTexto: generarResumenTexto(test, puntuacionesDirectas, nivelRiesgo),
     fechaCalculo: new Date().toISOString(),

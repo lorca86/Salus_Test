@@ -129,6 +129,9 @@ export interface Result {
   puntuacionesDirectas: Record<string, number>; // por dominio o "total"
   puntuacionesConvertidas: Record<string, number>;
   percentiles: Record<string, number>;
+  // Clasificación por bandas (p.ej. Perfil Sensorial-2: "Más que los demás",
+  // "Como los demás"...), independiente del cruce edad/sexo de `percentiles`.
+  clasificaciones?: Record<string, string>;
   nivelRiesgo: NivelRiesgo;
   resumenTexto: string;
   fechaCalculo: string;

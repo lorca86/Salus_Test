@@ -449,12 +449,10 @@ const ADOS2: TestDefinition = {
 // de cálculo (lib/scoring/engine.ts) suma cada ítem en todos sus ejes a la
 // vez mediante `ejesAdicionales`.
 //
-// Bandas de clasificación oficiales (puntuación directa por cuadrante, en
-// ambas versiones se leen igual: Mucho menos / Menos / Como los demás / Más
-// / Mucho más que los demás) — quedan documentadas aquí como referencia para
-// una futura extensión del motor que las calcule automáticamente; por ahora
-// el sistema muestra las puntuaciones directas de cada cuadrante/sección/
-// factor sin clasificar automáticamente el nivel.
+// Las bandas de clasificación oficiales (Mucho menos / Menos / Como los
+// demás / Más / Mucho más que los demás) están implementadas en
+// lib/scoring/engine.ts (BANDAS_PERFIL_SENSORIAL / calcularClasificaciones)
+// y se calculan automáticamente para cada cuadrante/sección/factor.
 const psOpciones = [
   { valor: 5, etiqueta: "Casi siempre o siempre (90% o más)" },
   { valor: 4, etiqueta: "Frecuentemente (75%)" },
