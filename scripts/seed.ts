@@ -1033,9 +1033,8 @@ const ADOS2_MODULO_T: TestDefinition = {
 // ADOS-2 Módulo 2 ("Habla con frases"). Copyright © 2012 Western Psychological
 // Services / edición española © 2015 TEA Ediciones. Contenido oficial provisto
 // por el usuario, quien confirmó certificación y licencia para su uso. La
-// tabla de clasificación (reverso de la hoja de algoritmo) no fue provista;
-// por eso este módulo calcula únicamente las puntuaciones directas AS/CRR/
-// Total, sin clasificación automática (ver lib/scoring/custom/ados2.ts).
+// clasificación usa dos columnas de corte por edad cronológica (ver
+// lib/scoring/custom/ados2.ts, tabla oficial provista por el usuario).
 const ADOS2_2_ITEMS: {
   id: string;
   seccion: string;
@@ -1228,10 +1227,7 @@ const ADOS2_MODULO_2: TestDefinition = {
   nombreVariante: "Módulo 2 (habla con frases)",
   descripcion:
     "Escala de Observación para el Diagnóstico del Autismo, 2ª edición (Lord et al.). Aplicación " +
-    "exclusiva de evaluador certificado en ADOS-2, durante una sesión de observación estructurada. " +
-    "Nota: la clasificación automática (Autismo/Espectro del autismo/No espectro) aún no está " +
-    "disponible para este módulo — falta incorporar la tabla oficial de corte por edad; el reporte " +
-    "muestra únicamente las puntuaciones directas AS/CRR/Total.",
+    "exclusiva de evaluador certificado en ADOS-2, durante una sesión de observación estructurada.",
   instrucciones:
     "Codifique cada ítem según el comportamiento mostrado por el niño a lo largo de toda la " +
     "sesión de evaluación, inmediatamente después de terminarla.",

@@ -95,13 +95,11 @@ export function calcularADOS2ModuloT(
 // --- Módulo 2 (Habla con frases) ------------------------------------------
 //
 // A diferencia del Módulo T, la conversión de código a puntuación de
-// algoritmo es la misma para todos los ítems (no hay excepción tipo B1) y el
-// corte de columna depende solo de la edad cronológica (</>= 5 años), no del
-// nivel de lenguaje. La tabla de clasificación oficial (reverso de la hoja
-// de algoritmo) no fue provista por el usuario, así que este módulo NO
-// calcula clasificación ni nivel de riesgo automáticos — solo las
-// puntuaciones directas AS/CRR/Total. Debe completarse cuando se disponga
-// de esa tabla.
+// algoritmo es la misma para todos los ítems (no hay excepción tipo B1). La
+// clasificación depende de dos columnas por edad cronológica (según la hoja
+// oficial de algoritmo y su tabla de corte):
+//   Menores de 5 años: Autismo >= 10; Espectro autista 7-9; No TEA <= 6.
+//   5 años o más:      Autismo >= 9;  Espectro autista == 8; No TEA <= 7.
 
 const AS_ITEMS_2 = [
   "ados22_a6", "ados22_a7",
@@ -111,7 +109,7 @@ const AS_ITEMS_2 = [
 const CRR_ITEMS_2 = ["ados22_a4", "ados22_d1", "ados22_d2", "ados22_d4"];
 
 // Conversión de código de ítem a puntuación de algoritmo: 0->0,1->1,2->2,
-// 3->2,7->0,8->0,9->0 (igual para todos los ítems de este módulo).
+// 3->2,7->0,8->0,9->0 (igual para todos los ítems de este módulo y el 3).
 function convertirCodigo2(codigo: number): number {
   if (codigo === 0 || codigo === 1 || codigo === 2) return codigo;
   if (codigo === 3) return 2;
@@ -119,7 +117,8 @@ function convertirCodigo2(codigo: number): number {
 }
 
 export function calcularADOS2Modulo2(
-  respuestas: Record<string, number | string>
+  respuestas: Record<string, number | string>,
+  edadMesesCronologica: number
 ): ResultadoADOS2 {
   let totalAS = 0;
   for (const id of AS_ITEMS_2) totalAS += convertirCodigo2(valorItem(respuestas, id));
@@ -127,12 +126,31 @@ export function calcularADOS2Modulo2(
   for (const id of CRR_ITEMS_2) totalCRR += convertirCodigo2(valorItem(respuestas, id));
   const totalGlobal = totalAS + totalCRR;
 
+  const menorDe5 = edadMesesCronologica < 60;
+  const cortes = menorDe5
+    ? { autismo: 10, espectro: 7 }
+    : { autismo: 9, espectro: 8 };
+
+  let clasificacion: string;
+  let nivelRiesgo: ResultadoADOS2["nivelRiesgo"];
+  if (totalGlobal >= cortes.autismo) {
+    clasificacion = "Autismo";
+    nivelRiesgo = "severo";
+  } else if (totalGlobal >= cortes.espectro) {
+    clasificacion = "Espectro autista";
+    nivelRiesgo = "moderado";
+  } else {
+    clasificacion = "No TEA";
+    nivelRiesgo = "minimo";
+  }
+
   return {
     puntuacionesDirectas: { total_AS: totalAS, total_CRR: totalCRR, total_global: totalGlobal },
     clasificaciones: {
-      nota: "Clasificación pendiente: falta incorporar la tabla oficial de corte del ADOS-2 Módulo 2",
+      columna_edad: menorDe5 ? "Menores de 5 años" : "5 años o más",
+      clasificacion_ados2: clasificacion,
     },
-    nivelRiesgo: "pendiente",
+    nivelRiesgo,
   };
 }
 
@@ -190,7 +208,7 @@ export function calcularADOS2(
     case "ADOS2_T":
       return calcularADOS2ModuloT(respuestas, edadMesesCronologica);
     case "ADOS2_2":
-      return calcularADOS2Modulo2(respuestas);
+      return calcularADOS2Modulo2(respuestas, edadMesesCronologica);
     case "ADOS2_3":
       return calcularADOS2Modulo3(respuestas);
     default:
