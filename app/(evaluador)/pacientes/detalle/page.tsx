@@ -76,14 +76,14 @@ function DetallePacienteContenido() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-clinical-slate-800">{paciente.nombreCompleto}</h1>
           <p className="text-sm text-clinical-slate-500">
             {paciente.edad} años · {paciente.sexo} · Nacimiento: {paciente.fechaNacimiento}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant="secondary"
             onClick={() => (window.location.href = `/pruebas/?patientId=${paciente.id}`)}

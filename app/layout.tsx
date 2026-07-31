@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 // Toda la app depende de estado de Firebase Auth/Firestore en el cliente
@@ -11,6 +11,11 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "SALUS Psicométrico",
   description: "Gestión y aplicación de pruebas psicométricas y clínicas.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

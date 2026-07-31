@@ -21,10 +21,10 @@ export function QuestionRenderer({
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <p className="mb-10 text-center text-2xl font-medium leading-relaxed text-clinical-slate-800">
+      <p className="mb-6 text-center text-lg font-medium leading-relaxed text-clinical-slate-800 sm:mb-10 sm:text-2xl">
         {pregunta.texto}
       </p>
-      <div className={clsx("grid gap-3", disposicion)}>
+      <div className={clsx("grid gap-2 sm:gap-3", disposicion)}>
         {pregunta.opciones.map((opcion) => {
           const seleccionada = valorSeleccionado === opcion.valor;
           return (
@@ -33,7 +33,7 @@ export function QuestionRenderer({
               type="button"
               onClick={() => onResponder(opcion.valor)}
               className={clsx(
-                "rounded-2xl border-2 px-6 py-5 text-left text-lg font-medium transition-colors",
+                "rounded-2xl border-2 px-4 py-3 text-left text-base font-medium transition-colors sm:px-6 sm:py-5 sm:text-lg",
                 seleccionada
                   ? "border-clinical-blue-600 bg-clinical-blue-50 text-clinical-blue-700"
                   : "border-clinical-slate-200 bg-white text-clinical-slate-700 hover:border-clinical-slate-300"

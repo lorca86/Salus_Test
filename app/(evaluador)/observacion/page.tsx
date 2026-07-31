@@ -102,7 +102,7 @@ function ObservacionContenido() {
               .map((pregunta) => (
                 <div key={pregunta.id}>
                   <p className="mb-2 text-sm text-clinical-slate-700">{pregunta.texto}</p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {pregunta.opciones.map((opcion) => (
                       <button
                         key={String(opcion.valor)}
