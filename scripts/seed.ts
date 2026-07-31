@@ -1254,6 +1254,224 @@ const ADOS2_MODULO_2: TestDefinition = {
   })),
 };
 
+// ADOS-2 Módulo 3 (Fluidez verbal — niños y adolescentes). Copyright © 2012
+// Western Psychological Services / edición española © 2015 TEA Ediciones.
+// Contenido oficial provisto por el usuario, quien confirmó certificación y
+// licencia para su uso. A diferencia del Módulo 2, este cuadernillo sí
+// incluye la tabla de clasificación (reverso de la hoja de algoritmo), por
+// lo que este módulo calcula clasificación y nivel de riesgo automáticos.
+const ADOS2_3_ITEMS: {
+  id: string;
+  seccion: string;
+  texto: string;
+  opciones: { valor: number; etiqueta: string }[];
+}[] = [
+  { id: "a1", seccion: "A. Lenguaje y comunicación", texto: "A1. Nivel general de lenguaje oral no ecolálico", opciones: [
+    { valor: 0, etiqueta: "Utiliza frases de manera generalmente correcta (con complejas)" },
+    { valor: 1, etiqueta: "Algo de habla relativamente compleja, con errores gramaticales recurrentes" },
+    { valor: 2, etiqueta: "Habla no ecolálica de al menos tres palabras, sin lenguaje complejo" },
+    { valor: 3, etiqueta: "El habla no ecolálica consiste principalmente en frases simples" },
+  ]},
+  { id: "a2", seccion: "A. Lenguaje y comunicación", texto: "A2. Anormalidades del habla asociadas al autismo (entonación/volumen/ritmo/velocidad)", opciones: [
+    { valor: 0, etiqueta: "Entonación, volumen y velocidad normales" },
+    { valor: 1, etiqueta: "Poca variación de timbre/tono; volumen levemente inusual" },
+    { valor: 2, etiqueta: "Habla claramente anormal (lenta/rápida/rítmica irregular/plana)" },
+    { valor: 7, etiqueta: "Tartamudeo u otro trastorno de la fluidez verbal" },
+  ]},
+  { id: "a3", seccion: "A. Lenguaje y comunicación", texto: "A3. Ecolalia inmediata", opciones: [
+    { valor: 0, etiqueta: "No repite el habla de otra persona" },
+    { valor: 1, etiqueta: "Eco ocasional del lenguaje" },
+    { valor: 2, etiqueta: "Repite con regularidad, pero también lenguaje espontáneo" },
+    { valor: 3, etiqueta: "El habla consiste principalmente en ecolalia inmediata" },
+  ]},
+  { id: "a4", seccion: "A. Lenguaje y comunicación", texto: "A4. Uso estereotipado o idiosincrásico de palabras o frases", opciones: [
+    { valor: 0, etiqueta: "Nunca o casi nunca usa palabras/frases estereotipadas" },
+    { valor: 1, etiqueta: "Algo repetitivo/formal para su nivel, no claramente raro" },
+    { valor: 2, etiqueta: "A menudo vocalizaciones estereotipadas o palabras raras" },
+    { valor: 3, etiqueta: "Habla frecuentemente rara o estereotipada" },
+  ]},
+  { id: "a5", seccion: "A. Lenguaje y comunicación", texto: "A5. Ofrece información", opciones: [
+    { valor: 0, etiqueta: "Ofrece información espontáneamente en varias ocasiones" },
+    { valor: 1, etiqueta: "A veces ofrece información de manera espontánea" },
+    { valor: 2, etiqueta: "Nunca o casi nunca ofrece información de forma espontánea" },
+  ]},
+  { id: "a6", seccion: "A. Lenguaje y comunicación", texto: "A6. Pide información", opciones: [
+    { valor: 0, etiqueta: "Le pregunta al examinador sobre pensamientos/experiencias en varias ocasiones" },
+    { valor: 1, etiqueta: "Ocasionalmente (un ejemplo claro) le pregunta al examinador" },
+    { valor: 2, etiqueta: "Responde adecuadamente, pero no pregunta de manera espontánea" },
+    { valor: 3, etiqueta: "Rara vez o nunca expresa interés por preguntar al examinador" },
+  ]},
+  { id: "a7", seccion: "A. Lenguaje y comunicación", texto: "A7. Narración de sucesos", opciones: [
+    { valor: 0, etiqueta: "Informa sobre un hecho no rutinario específico, sin preguntas específicas" },
+    { valor: 1, etiqueta: "Da información suficiente de un hecho rutinario" },
+    { valor: 2, etiqueta: "Depende de preguntas específicas del examinador para continuar" },
+    { valor: 3, etiqueta: "Respuestas inconsistentes o insuficientes, incluso con preguntas específicas" },
+  ]},
+  { id: "a8", seccion: "A. Lenguaje y comunicación", texto: "A8. Conversación", opciones: [
+    { valor: 0, etiqueta: "La conversación fluye, construyéndose sobre el diálogo del examinador" },
+    { valor: 1, etiqueta: "Parte del habla incluye elaboración espontánea, con límites" },
+    { valor: 2, etiqueta: "Poca conversación recíproca sostenida" },
+    { valor: 3, etiqueta: "Poca habla comunicativa espontánea" },
+  ]},
+  { id: "a9", seccion: "A. Lenguaje y comunicación", texto: "A9. Gestos descriptivos, convencionales, instrumentales o informativos", opciones: [
+    { valor: 0, etiqueta: "Uso espontáneo de varios gestos descriptivos" },
+    { valor: 1, etiqueta: "Algún uso espontáneo, pero exagerado o poco variado" },
+    { valor: 2, etiqueta: "Solo gestos informativos/convencionales/instrumentales" },
+    { valor: 3, etiqueta: "Ausencia o uso muy limitado de gestos" },
+    { valor: 8, etiqueta: "N/A (p. ej., limitado por dificultad motora severa)" },
+  ]},
+  { id: "b1", seccion: "B. Interacción social recíproca", texto: "B1. Contacto visual inusual", opciones: [
+    { valor: 0, etiqueta: "Mirada apropiada, con cambios sutiles" },
+    { valor: 2, etiqueta: "Contacto visual modulado pobremente" },
+  ]},
+  { id: "b2", seccion: "B. Interacción social recíproca", texto: "B2. Expresiones faciales dirigidas al examinador", opciones: [
+    { valor: 0, etiqueta: "Dirige diversas expresiones faciales apropiadas al examinador" },
+    { valor: 1, etiqueta: "Dirige algunas expresiones faciales al examinador" },
+    { valor: 2, etiqueta: "No dirige expresiones faciales apropiadas al examinador" },
+  ]},
+  { id: "b3", seccion: "B. Interacción social recíproca", texto: "B3. Producción de lenguaje y comunicación no verbal asociada", opciones: [
+    { valor: 0, etiqueta: "Vocalización con cambios sutiles y adecuados en gestos/miradas/expresiones" },
+    { valor: 1, etiqueta: "Vocalización con variedad/frecuencia anormal, limitada o inferior" },
+    { valor: 2, etiqueta: "Escasa o nula comunicación no verbal combinada con vocalizaciones" },
+    { valor: 7, etiqueta: "Cierta evitación de la mirada, pero con modulación/coordinación" },
+    { valor: 8, etiqueta: "N/A; no hay vocalizaciones, o comunicación no verbal mínima" },
+  ]},
+  { id: "b4", seccion: "B. Interacción social recíproca", texto: "B4. Disfrute compartido durante la interacción", opciones: [
+    { valor: 0, etiqueta: "Muestras claras de disfrute adecuadas, en +1 actividad" },
+    { valor: 1, etiqueta: "Cierto disfrute adecuado, o claro en una sola interacción" },
+    { valor: 2, etiqueta: "Escaso/nulo disfrute con el examinador, sí en discurso/acciones propias" },
+    { valor: 3, etiqueta: "Poco o nulo disfrute durante la evaluación" },
+  ]},
+  { id: "b5", seccion: "B. Interacción social recíproca", texto: "B5. Comentarios sobre las emociones de otros / empatía", opciones: [
+    { valor: 0, etiqueta: "Transmite espontáneamente clara comprensión de varias emociones" },
+    { valor: 1, etiqueta: "Cierta comprensión/identificación de una emoción de otros" },
+    { valor: 2, etiqueta: "Escasa o nula identificación de estados emocionales de otros" },
+  ]},
+  { id: "b6", seccion: "B. Interacción social recíproca", texto: "B6. Comprensión de las situaciones y relaciones sociales típicas", opciones: [
+    { valor: 0, etiqueta: "Muestra ejemplos de comprensión de varias relaciones y de su propio papel" },
+    { valor: 1, etiqueta: "Comprende varias relaciones, pero no su propio papel (o solo una)" },
+    { valor: 2, etiqueta: "Cierta comprensión de una sola relación social típica" },
+    { valor: 3, etiqueta: "Comprensión escasa o nula de las relaciones sociales típicas" },
+  ]},
+  { id: "b7", seccion: "B. Interacción social recíproca", texto: "B7. Características de las iniciaciones sociales", opciones: [
+    { valor: 0, etiqueta: "Uso efectivo de formas verbales/no verbales, iniciaciones claras" },
+    { valor: 1, etiqueta: "Iniciaciones con características ligeramente inusuales" },
+    { valor: 2, etiqueta: "Iniciaciones inapropiadas; muchas carecen de integración/naturaleza social" },
+    { valor: 3, etiqueta: "No hay iniciaciones sociales de ningún tipo" },
+  ]},
+  { id: "b8", seccion: "B. Interacción social recíproca", texto: "B8. Cantidad de iniciaciones sociales / mantenimiento de la atención", opciones: [
+    { valor: 0, etiqueta: "Intentos frecuentes de captar/mantener/dirigir la atención" },
+    { valor: 1, etiqueta: "Algunos intentos, con escasa frecuencia o en pocas actividades" },
+    { valor: 2, etiqueta: "Intentos ocasionales, relacionados únicamente con preocupaciones" },
+    { valor: 3, etiqueta: "Relativamente poca preocupación por la atención del examinador" },
+    { valor: 7, etiqueta: "Demandas de atención inusualmente frecuentes o excesivas" },
+  ]},
+  { id: "b9", seccion: "B. Interacción social recíproca", texto: "B9. Calidad de la respuesta social", opciones: [
+    { valor: 0, etiqueta: "Gama adecuada de respuestas variadas según el contexto" },
+    { valor: 1, etiqueta: "Reacciona a la mayoría, pero de forma limitada o inconsistente" },
+    { valor: 2, etiqueta: "Respuestas extrañas, estereotipadas o poco variadas" },
+    { valor: 3, etiqueta: "Respuesta mínima o inexistente a los intentos del examinador" },
+  ]},
+  { id: "b10", seccion: "B. Interacción social recíproca", texto: "B10. Cantidad de comunicación social recíproca", opciones: [
+    { valor: 0, etiqueta: "Uso extenso de comportamientos verbales/no verbales recíprocos" },
+    { valor: 1, etiqueta: "Alguna comunicación recíproca, reducida en frecuencia/cantidad" },
+    { valor: 2, etiqueta: "Comunicación orientada a objetos/preguntas/ecolálica, poca reciprocidad" },
+    { valor: 3, etiqueta: "Escasa o nula comunicación con el examinador" },
+  ]},
+  { id: "b11", seccion: "B. Interacción social recíproca", texto: "B11. Calidad general de la relación", opciones: [
+    { valor: 0, etiqueta: "Interacción agradable y apropiada" },
+    { valor: 1, etiqueta: "Agradable a veces, no de forma sostenida" },
+    { valor: 2, etiqueta: "Unilateral o inusual, sesión ligeramente incómoda" },
+    { valor: 3, etiqueta: "Consideración mínima, sesión marcadamente incómoda" },
+  ]},
+  { id: "c1", seccion: "C. Imaginación", texto: "C1. Imaginación y creatividad", opciones: [
+    { valor: 0, etiqueta: "Introduce diversas actividades o comentarios creativos, originales" },
+    { valor: 1, etiqueta: "Algunas acciones imaginativas, poco variadas o solo en situación estructurada" },
+    { valor: 2, etiqueta: "Escasas acciones imaginativas, o solo repetitivas/estereotipadas" },
+    { valor: 3, etiqueta: "No hay acciones creativas ni inventivas" },
+  ]},
+  { id: "d1", seccion: "D. Comportamientos estereotipados e intereses restringidos", texto: "D1. Interés sensorial inusual en los materiales de juego o en las personas", opciones: [
+    { valor: 0, etiqueta: "No presenta intereses sensoriales inusuales" },
+    { valor: 1, etiqueta: "Varios posibles pero no tan claros como código 2" },
+    { valor: 2, etiqueta: "Interés evidente por elementos sensoriales, o examen sensorial" },
+    { valor: 3, etiqueta: "Comportamientos evidentes en ≥2 actividades, pueden interferir" },
+  ]},
+  { id: "d2", seccion: "D. Comportamientos estereotipados e intereses restringidos", texto: "D2. Manierismos de manos y dedos y otros manierismos complejos", opciones: [
+    { valor: 0, etiqueta: "Ninguno" },
+    { valor: 1, etiqueta: "Manierismos inusuales/repetitivos no tan claros como código 2" },
+    { valor: 2, etiqueta: "Movimientos/retorcimientos evidentes, manierismos complejos" },
+    { valor: 3, etiqueta: "Ocurren frecuentemente en ≥2 actividades, pueden interferir" },
+  ]},
+  { id: "d3", seccion: "D. Comportamientos estereotipados e intereses restringidos", texto: "D3. Conducta autolesiva", opciones: [
+    { valor: 0, etiqueta: "No intenta autolesionarse" },
+    { valor: 1, etiqueta: "Autolesión dudosa o posible, o infrecuente pero clara" },
+    { valor: 2, etiqueta: "Más de un ejemplo claro de autolesión" },
+  ]},
+  { id: "d4", seccion: "D. Comportamientos estereotipados e intereses restringidos", texto: "D4. Interés excesivo o referencias a temas u objetos inusuales o altamente específicos o comportamientos repetitivos", opciones: [
+    { valor: 0, etiqueta: "No hubo interés excesivo, referencias inusuales ni conductas repetitivas" },
+    { valor: 1, etiqueta: "Referencias ocasionales a temas/patrones de interés inusuales" },
+    { valor: 2, etiqueta: "Patrones de interés evidentes, estereotipados o inusuales" },
+    { valor: 3, etiqueta: "Preocupaciones o comportamientos repetitivos evidentes que interfieren" },
+  ]},
+  { id: "d5", seccion: "D. Comportamientos estereotipados e intereses restringidos", texto: "D5. Compulsiones o rituales", opciones: [
+    { valor: 0, etiqueta: "No hubo actividades o rutinas verbales claras a completar" },
+    { valor: 1, etiqueta: "Actividades o lenguaje inusualmente fijados a una rutina, sin compulsión clara" },
+    { valor: 2, etiqueta: "Una o más rutinas verbales que debe completar de manera específica (compulsivo)" },
+  ]},
+  { id: "e1", seccion: "E. Otros comportamientos", texto: "E1. Elevado nivel de actividad / agitación", opciones: [
+    { valor: 0, etiqueta: "Se sienta quieto de manera apropiada" },
+    { valor: 1, etiqueta: "Inquieto o se mueve constantemente en la silla" },
+    { valor: 2, etiqueta: "Dificultades para quedarse sentado; manipula objetos de forma disruptiva" },
+    { valor: 3, etiqueta: "Comportamientos hiperactivos difíciles de interrumpir; interfiere con la evaluación" },
+    { valor: 7, etiqueta: "Muy quieto, muy poca actividad" },
+  ]},
+  { id: "e2", seccion: "E. Otros comportamientos", texto: "E2. Berrinches, agresiones, comportamientos negativos o disruptivos", opciones: [
+    { valor: 0, etiqueta: "No se muestra enfadado, disruptivo ni agresivo" },
+    { valor: 1, etiqueta: "Ejemplo leve de disrupción, enfado o comportamiento agresivo/negativo" },
+    { valor: 2, etiqueta: "Más de un comportamiento intencionadamente disruptivo o negativo" },
+    { valor: 3, etiqueta: "Berrinches marcados o repetitivos, o agresión significativa" },
+  ]},
+  { id: "e3", seccion: "E. Otros comportamientos", texto: "E3. Ansiedad", opciones: [
+    { valor: 0, etiqueta: "No hay ansiedad evidente" },
+    { valor: 1, etiqueta: "Signos leves de ansiedad o inseguridad, especialmente al principio" },
+    { valor: 2, etiqueta: "Ansiedad marcada a lo largo de la evaluación" },
+  ]},
+];
+
+const ADOS2_MODULO_3: TestDefinition = {
+  id: "ados2_modulo_3",
+  codigo: "ADOS2_3",
+  nombre: "ADOS-2 · Módulo 3 (Fluidez verbal, niños y adolescentes)",
+  tipo: "observacion",
+  categoria: "autismo",
+  grupo: "ados2",
+  nombreGrupo: "ADOS-2",
+  nombreVariante: "Módulo 3 (fluidez verbal)",
+  descripcion:
+    "Escala de Observación para el Diagnóstico del Autismo, 2ª edición (Lord et al.). Aplicación " +
+    "exclusiva de evaluador certificado en ADOS-2, durante una sesión de observación estructurada.",
+  instrucciones:
+    "Codifique cada ítem según el comportamiento mostrado por el evaluado a lo largo de toda la " +
+    "sesión de evaluación, inmediatamente después de terminarla.",
+  algoritmoCalculo: "personalizado",
+  requiereBaremo: false,
+  dominios: [
+    "A. Lenguaje y comunicación",
+    "B. Interacción social recíproca",
+    "C. Imaginación",
+    "D. Comportamientos estereotipados e intereses restringidos",
+    "E. Otros comportamientos",
+  ],
+  activo: true,
+  preguntas: ADOS2_3_ITEMS.map((item) => ({
+    id: `ados23_${item.id}`,
+    texto: item.texto,
+    tipo: "opcion_multiple" as const,
+    dominio: item.seccion,
+    opciones: item.opciones,
+  })),
+};
+
 const CATALOGO: TestDefinition[] = [
   PHQ9,
   GAD7,
@@ -1271,6 +1489,7 @@ const CATALOGO: TestDefinition[] = [
   PERFIL_SENSORIAL_NINO,
   ADOS2_MODULO_T,
   ADOS2_MODULO_2,
+  ADOS2_MODULO_3,
 ];
 
 const BAREMOS_EJEMPLO: NormativeTable[] = [

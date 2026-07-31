@@ -136,8 +136,51 @@ export function calcularADOS2Modulo2(
   };
 }
 
+// --- Módulo 3 (Fluidez verbal — niños y adolescentes) ---------------------
+//
+// Misma conversión genérica de código que el Módulo 2 (0/1/2 directo, 3->2,
+// 7/8/9->0), pero este cuadernillo sí incluye la tabla oficial de
+// clasificación por puntos de corte (una sola columna, sin distinción por
+// edad): Autismo si Total global >= 9; Espectro autista si 7-8; No TEA si
+// <= 6.
+
+const AS_ITEMS_3 = [
+  "ados23_a7", "ados23_a8", "ados23_a9",
+  "ados23_b1", "ados23_b2", "ados23_b4", "ados23_b7", "ados23_b9", "ados23_b10", "ados23_b11",
+];
+const CRR_ITEMS_3 = ["ados23_a4", "ados23_d1", "ados23_d2", "ados23_d4"];
+
+export function calcularADOS2Modulo3(
+  respuestas: Record<string, number | string>
+): ResultadoADOS2 {
+  let totalAS = 0;
+  for (const id of AS_ITEMS_3) totalAS += convertirCodigo2(valorItem(respuestas, id));
+  let totalCRR = 0;
+  for (const id of CRR_ITEMS_3) totalCRR += convertirCodigo2(valorItem(respuestas, id));
+  const totalGlobal = totalAS + totalCRR;
+
+  let clasificacion: string;
+  let nivelRiesgo: ResultadoADOS2["nivelRiesgo"];
+  if (totalGlobal >= 9) {
+    clasificacion = "Autismo";
+    nivelRiesgo = "severo";
+  } else if (totalGlobal >= 7) {
+    clasificacion = "Espectro autista";
+    nivelRiesgo = "moderado";
+  } else {
+    clasificacion = "No TEA";
+    nivelRiesgo = "minimo";
+  }
+
+  return {
+    puntuacionesDirectas: { total_AS: totalAS, total_CRR: totalCRR, total_global: totalGlobal },
+    clasificaciones: { clasificacion_ados2: clasificacion },
+    nivelRiesgo,
+  };
+}
+
 // Registro de algoritmos por código de test. Se amplía a medida que se
-// agregan más módulos (1, 3, 4).
+// agregan más módulos (1, 4).
 export function calcularADOS2(
   codigoTest: string,
   respuestas: Record<string, number | string>,
@@ -148,6 +191,8 @@ export function calcularADOS2(
       return calcularADOS2ModuloT(respuestas, edadMesesCronologica);
     case "ADOS2_2":
       return calcularADOS2Modulo2(respuestas);
+    case "ADOS2_3":
+      return calcularADOS2Modulo3(respuestas);
     default:
       throw new Error(`No hay algoritmo ADOS-2 registrado para "${codigoTest}"`);
   }
