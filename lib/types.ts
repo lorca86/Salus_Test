@@ -105,6 +105,7 @@ export interface Assessment {
   evaluadorId: string;
   tokenAcceso: string; // token único para acceso remoto sin login
   tokenExpiraEn?: string; // ISO date
+  pinAcceso?: string; // PIN corto adicional para evaluaciones remotas (modalidad "remoto")
   modalidad: ModalidadAplicacion;
   estado: EstadoAssessment;
   // Edad y sexo del paciente AL MOMENTO DE ASIGNAR, copiados aquí a propósito:

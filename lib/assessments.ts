@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -10,7 +11,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { generarTokenAcceso } from "@/lib/tokens";
+import { generarTokenAcceso, generarPinAcceso } from "@/lib/tokens";
 import { calcularResultado } from "@/lib/scoring/engine";
 import { calcularADOS2 } from "@/lib/scoring/custom/ados2";
 import type {
@@ -46,6 +47,10 @@ export async function crearAsignacion(params: {
     pacienteEdad: params.paciente.edad,
     pacienteSexo: params.paciente.sexo,
     creadoEn: new Date().toISOString(),
+    // El PIN es una fricción de UI adicional al enlace (se entrega por un
+    // canal aparte, p. ej. por teléfono), no una credencial independiente:
+    // quien ya tiene el enlace puede leer el documento y, con él, el PIN.
+    ...(params.modalidad === "remoto" ? { pinAcceso: generarPinAcceso() } : {}),
   };
   await setDoc(ref, nuevo);
   return nuevo;
@@ -182,4 +187,15 @@ export async function finalizarObservacionPersonalizada(
   });
 
   return { id: resultRef.id, ...resultadoData };
+}
+
+// Borra una evaluación aplicada por error: el resultado asociado (si existe)
+// y el assessment mismo. Las reglas de Firestore solo permiten esto al
+// evaluador dueño del assessment.
+export async function eliminarAsignacion(assessmentId: string): Promise<void> {
+  const resultadosSnap = await getDocs(
+    query(collection(db, "results"), where("assessmentId", "==", assessmentId))
+  );
+  await Promise.all(resultadosSnap.docs.map((d) => deleteDoc(d.ref)));
+  await deleteDoc(doc(db, "assessments", assessmentId));
 }

@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/Button";
 import { RiskBadge } from "@/components/ui/RiskBadge";
 import { obtenerPaciente } from "@/lib/patients";
 import { listarResultadosPorPaciente } from "@/lib/results";
+import { eliminarAsignacion } from "@/lib/assessments";
 import type { Assessment, Patient, Result } from "@/lib/types";
+import { Trash2 } from "lucide-react";
 
 function DetallePacienteContenido() {
   const params = useSearchParams();
@@ -18,6 +20,7 @@ function DetallePacienteContenido() {
   const [paciente, setPaciente] = useState<Patient | null>(null);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [resultados, setResultados] = useState<Result[]>([]);
+  const [eliminandoId, setEliminandoId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -33,6 +36,20 @@ function DetallePacienteContenido() {
     setResultados(resultadosPaciente);
     const snap = await getDocs(query(collection(db, "assessments"), where("patientId", "==", id)));
     setAssessments(snap.docs.map((d) => d.data() as Assessment));
+  }
+
+  async function eliminar(assessmentId: string) {
+    if (!window.confirm("¿Eliminar esta evaluación y su resultado? Esta acción no se puede deshacer.")) {
+      return;
+    }
+    setEliminandoId(assessmentId);
+    try {
+      await eliminarAsignacion(assessmentId);
+      setAssessments((prev) => prev.filter((a) => a.id !== assessmentId));
+      setResultados((prev) => prev.filter((r) => r.assessmentId !== assessmentId));
+    } finally {
+      setEliminandoId(null);
+    }
   }
 
   if (!paciente) return <p className="text-clinical-slate-400">Cargando expediente…</p>;
@@ -88,6 +105,14 @@ function DetallePacienteContenido() {
                     Ver reporte →
                   </a>
                 )}
+                <button
+                  onClick={() => eliminar(a.id)}
+                  disabled={eliminandoId === a.id}
+                  title="Eliminar evaluación"
+                  className="rounded-md p-1.5 text-clinical-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             </Card>
           );

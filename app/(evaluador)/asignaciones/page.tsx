@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/useAuth";
 import { listarPacientes } from "@/lib/patients";
 import { listarCatalogo } from "@/lib/catalog";
-import { crearAsignacion } from "@/lib/assessments";
+import { crearAsignacion, eliminarAsignacion } from "@/lib/assessments";
 import { construirEnlaceRemoto } from "@/lib/tokens";
 import type { Assessment, ModalidadAplicacion, Patient, TestDefinition } from "@/lib/types";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Trash2 } from "lucide-react";
 
 function AsignacionesContenido() {
   const { usuario } = useAuth();
@@ -26,9 +26,12 @@ function AsignacionesContenido() {
   const [patientId, setPatientId] = useState(patientIdInicial);
   const [testId, setTestId] = useState("");
   const [modalidad, setModalidad] = useState<ModalidadAplicacion>("remoto");
-  const [enlaceGenerado, setEnlaceGenerado] = useState<{ id: string; url: string } | null>(null);
+  const [enlaceGenerado, setEnlaceGenerado] = useState<{ id: string; url: string; pin?: string } | null>(
+    null
+  );
   const [copiado, setCopiado] = useState(false);
   const [creando, setCreando] = useState(false);
+  const [eliminandoId, setEliminandoId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!usuario) return;
@@ -48,6 +51,19 @@ function AsignacionesContenido() {
   }
 
   const testSeleccionado = catalogo.find((t) => t.id === testId);
+
+  async function eliminar(assessmentId: string) {
+    if (!window.confirm("¿Eliminar esta evaluación y su resultado? Esta acción no se puede deshacer.")) {
+      return;
+    }
+    setEliminandoId(assessmentId);
+    try {
+      await eliminarAsignacion(assessmentId);
+      setAssessments((prev) => prev.filter((a) => a.id !== assessmentId));
+    } finally {
+      setEliminandoId(null);
+    }
+  }
 
   async function asignar() {
     if (!usuario || !patientId || !testId) return;
@@ -75,7 +91,11 @@ function AsignacionesContenido() {
         paciente,
       });
       if (modalidad === "remoto") {
-        setEnlaceGenerado({ id: assessment.id, url: construirEnlaceRemoto(window.location.origin, assessment.id) });
+        setEnlaceGenerado({
+          id: assessment.id,
+          url: construirEnlaceRemoto(window.location.origin, assessment.id),
+          pin: assessment.pinAcceso,
+        });
       } else {
         setEnlaceGenerado({ id: assessment.id, url: `${window.location.origin}/kiosko/prueba/?id=${assessment.id}` });
       }
@@ -144,18 +164,29 @@ function AsignacionesContenido() {
         </Button>
 
         {enlaceGenerado && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg bg-clinical-slate-50 p-3 text-sm">
-            <span className="flex-1 truncate text-clinical-slate-600">{enlaceGenerado.url}</span>
-            <button
-              onClick={async () => {
-                await navigator.clipboard.writeText(enlaceGenerado.url);
-                setCopiado(true);
-                setTimeout(() => setCopiado(false), 1500);
-              }}
-              className="rounded-md p-1.5 text-clinical-blue-600 hover:bg-clinical-blue-50"
-            >
-              {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </button>
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center gap-2 rounded-lg bg-clinical-slate-50 p-3 text-sm">
+              <span className="flex-1 truncate text-clinical-slate-600">{enlaceGenerado.url}</span>
+              <button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(enlaceGenerado.url);
+                  setCopiado(true);
+                  setTimeout(() => setCopiado(false), 1500);
+                }}
+                className="rounded-md p-1.5 text-clinical-blue-600 hover:bg-clinical-blue-50"
+              >
+                {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </button>
+            </div>
+            {enlaceGenerado.pin && (
+              <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+                PIN de acceso: <span className="font-mono text-base font-semibold">{enlaceGenerado.pin}</span>
+                <p className="mt-1 text-xs text-amber-700">
+                  Entrégalo por un canal distinto al enlace (p. ej. por teléfono). Lo pedirá antes de mostrar la
+                  prueba.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </Card>
@@ -170,11 +201,21 @@ function AsignacionesContenido() {
                 {a.modalidad} · {a.estado}
               </p>
             </div>
-            {a.estado === "completado" && (
-              <a href={`/asignaciones/reporte/?id=${a.id}`} className="text-sm font-medium text-clinical-blue-600">
-                Ver reporte →
-              </a>
-            )}
+            <div className="flex items-center gap-3">
+              {a.estado === "completado" && (
+                <a href={`/asignaciones/reporte/?id=${a.id}`} className="text-sm font-medium text-clinical-blue-600">
+                  Ver reporte →
+                </a>
+              )}
+              <button
+                onClick={() => eliminar(a.id)}
+                disabled={eliminandoId === a.id}
+                title="Eliminar evaluación"
+                className="rounded-md p-1.5 text-clinical-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </Card>
         ))}
         {assessments.length === 0 && <p className="text-clinical-slate-400">Sin evaluaciones aún.</p>}

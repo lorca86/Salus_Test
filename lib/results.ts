@@ -5,10 +5,11 @@ import type { Result } from "@/lib/types";
 export async function obtenerResultadoPorAssessment(assessmentId: string): Promise<Result | null> {
   const snap = await getDocs(query(collection(db, "results"), where("assessmentId", "==", assessmentId)));
   if (snap.empty) return null;
-  return snap.docs[0].data() as Result;
+  const d = snap.docs[0];
+  return { id: d.id, ...(d.data() as Omit<Result, "id">) };
 }
 
 export async function listarResultadosPorPaciente(patientId: string): Promise<Result[]> {
   const snap = await getDocs(query(collection(db, "results"), where("patientId", "==", patientId)));
-  return snap.docs.map((d) => d.data() as Result);
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Result, "id">) }));
 }

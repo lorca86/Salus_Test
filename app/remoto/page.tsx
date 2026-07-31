@@ -18,6 +18,9 @@ function RemotoContenido() {
   } | null>(null);
   const [completado, setCompletado] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pinVerificado, setPinVerificado] = useState(false);
+  const [pinIngresado, setPinIngresado] = useState("");
+  const [pinError, setPinError] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -49,6 +52,16 @@ function RemotoContenido() {
     setDatos({ assessment, test });
   }
 
+  function verificarPin(e: React.FormEvent) {
+    e.preventDefault();
+    if (pinIngresado === datos?.assessment.pinAcceso) {
+      setPinVerificado(true);
+      setPinError(false);
+    } else {
+      setPinError(true);
+    }
+  }
+
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white px-6 text-center">
@@ -72,6 +85,39 @@ function RemotoContenido() {
       <div className="flex min-h-screen flex-col items-center justify-center bg-white">
         <Stethoscope className="mb-3 h-8 w-8 text-clinical-blue-600" />
         <p className="text-clinical-slate-500">Cargando evaluación…</p>
+      </div>
+    );
+  }
+
+  if (datos.assessment.pinAcceso && !pinVerificado) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
+        <ShieldCheck className="mb-4 h-10 w-10 text-clinical-blue-600" />
+        <h1 className="mb-2 text-xl font-semibold text-clinical-slate-800">Ingrese su PIN de acceso</h1>
+        <p className="mb-4 max-w-sm text-sm text-clinical-slate-500">
+          Su evaluador le entregó un código de 4 dígitos para confirmar su identidad antes de iniciar.
+        </p>
+        <form onSubmit={verificarPin} className="flex flex-col items-center gap-3">
+          <input
+            autoFocus
+            inputMode="numeric"
+            maxLength={4}
+            value={pinIngresado}
+            onChange={(e) => {
+              setPinIngresado(e.target.value.replace(/\D/g, ""));
+              setPinError(false);
+            }}
+            className="w-32 rounded-lg border border-clinical-slate-300 px-3 py-2 text-center text-2xl tracking-[0.5em]"
+          />
+          {pinError && <p className="text-sm text-red-600">PIN incorrecto. Intente de nuevo.</p>}
+          <button
+            type="submit"
+            disabled={pinIngresado.length !== 4}
+            className="rounded-lg bg-clinical-blue-600 px-6 py-2 text-sm font-medium text-white disabled:opacity-50"
+          >
+            Continuar
+          </button>
+        </form>
       </div>
     );
   }
