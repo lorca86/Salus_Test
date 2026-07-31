@@ -36,13 +36,17 @@ export function calcularPuntuacionesDirectas(
       const porDominio: Record<string, number> = {};
       for (const dominio of test.dominios ?? []) porDominio[dominio] = 0;
       for (const pregunta of test.preguntas) {
-        const dominio = pregunta.dominio ?? "total";
         const valor = respuestas[pregunta.id];
         const puntos = aValorNumerico(valor, pregunta.reverso, pregunta.opciones);
-        porDominio[dominio] = (porDominio[dominio] ?? 0) + puntos;
-        // Ejes adicionales (p.ej. Perfil Sensorial-2: Cuadrante + Sección +
-        // Factor escolar simultáneos): se acumulan aparte con clave "eje:valor"
-        // sin interferir con el dominio principal de arriba.
+        // Algunos ítems (p.ej. Perfil Sensorial-2: ítems que el manual no
+        // asigna a ningún Cuadrante) no tienen `dominio` — en ese caso no
+        // suman a ningún cuadrante, solo a sus ejes adicionales.
+        if (pregunta.dominio) {
+          porDominio[pregunta.dominio] = (porDominio[pregunta.dominio] ?? 0) + puntos;
+        }
+        // Ejes adicionales (p.ej. Cuadrante + Sección + Factor escolar
+        // simultáneos): se acumulan aparte con clave "eje:valor" sin
+        // interferir con el dominio principal de arriba.
         if (pregunta.ejesAdicionales) {
           for (const [eje, valorEje] of Object.entries(pregunta.ejesAdicionales)) {
             const clave = `${eje}:${valorEje}`;
@@ -178,6 +182,21 @@ const BANDAS_PERFIL_SENSORIAL: Record<string, Record<string, BandaClasificacion[
     "factorEscolar:2": bandas5(4, 11, 26, 33, 50),
     "factorEscolar:3": bandas5(2, 9, 24, 31, 60),
     "factorEscolar:4": bandas4(5, 18, 24, 45),
+  },
+  PS2_NINO: {
+    busqueda: bandas5(6, 19, 47, 60, 95),
+    evitacion: bandas5(7, 20, 46, 59, 100),
+    sensibilidad: bandas5(6, 17, 42, 53, 95),
+    registro: bandas5(6, 18, 43, 55, 110),
+    "seccion:auditivo": bandas5(2, 9, 24, 31, 40),
+    "seccion:visual": bandas5(4, 8, 17, 21, 30),
+    "seccion:tactil": bandas5(0, 7, 21, 28, 55),
+    "seccion:movimiento": bandas5(1, 6, 18, 24, 40),
+    "seccion:posicion_cuerpo": bandas5(0, 4, 15, 19, 40),
+    "seccion:sensorial_oral": bandas4(7, 24, 32, 50),
+    "seccion:conducta": bandas5(1, 8, 22, 29, 45),
+    "seccion:emocional_social": bandas5(2, 12, 31, 41, 70),
+    "seccion:atencion": bandas5(0, 8, 24, 31, 50),
   },
 };
 

@@ -608,6 +608,135 @@ const PERFIL_SENSORIAL_ESCOLAR: TestDefinition = {
   })),
 };
 
+// Versión completa para padres/cuidadores ("Niño"), 86 ítems en 9 secciones.
+// 6 ítems (10, 11, 17, 29, 42, 43) no están asignados a ningún Cuadrante
+// según la tabla oficial de corrección — solo cuentan para su Sección.
+const PS_NINO_ITEMS: { texto: string; cuadrante?: string; seccion?: string }[] = [
+  { texto: "Reacciona fuertemente a sonidos inesperados o altos (por ejemplo, sirenas, perros ladrando, secadora de pelo, etc.).", cuadrante: "evitacion", seccion: "auditivo" },
+  { texto: "Se cubre los oídos con las manos para protegerlos de sonidos.", cuadrante: "evitacion", seccion: "auditivo" },
+  { texto: "Le cuesta trabajo completar las tareas cuando hay música o la televisión está prendida.", cuadrante: "sensibilidad", seccion: "auditivo" },
+  { texto: "Se distrae cuando hay mucho ruido a su alrededor.", cuadrante: "sensibilidad", seccion: "auditivo" },
+  { texto: "Se vuelve improductivo(a) con el ruido de fondo (por ejemplo, ventilador, refrigerador, etc.).", cuadrante: "evitacion", seccion: "auditivo" },
+  { texto: "Parece ignorarme o no escuchar lo que estoy diciendo.", cuadrante: "sensibilidad", seccion: "auditivo" },
+  { texto: "Parece no oír cuando lo(a) llamo por su nombre (a pesar de que puede oír bien).", cuadrante: "sensibilidad", seccion: "auditivo" },
+  { texto: "Disfruta de ruidos extraños o hace ruido(s) solo por diversión.", cuadrante: "registro", seccion: "auditivo" },
+
+  { texto: "Prefiere jugar o trabajar con poca iluminación.", cuadrante: "sensibilidad", seccion: "visual" },
+  { texto: "Prefiere estampados o colores brillantes para la ropa.", seccion: "visual" },
+  { texto: "Disfruta viendo los detalles visuales en los objetos.", seccion: "visual" },
+  { texto: "Necesita ayuda para encontrar objetos que son evidentes para otras personas.", cuadrante: "registro", seccion: "visual" },
+  { texto: "Le molestan las luces brillante más que a otros niños(as) de su edad.", cuadrante: "sensibilidad", seccion: "visual" },
+  { texto: "Observa a las personas mientras se mueven alrededor de la habitación.", cuadrante: "busqueda", seccion: "visual" },
+  { texto: "Le molestan las luces brillantes (por ejemplo, se esconde de la luz del sol que entra por la ventana).", cuadrante: "evitacion" },
+
+  { texto: "Muestra angustia cuando le arreglan (por ejemplo, pelea o llora cuando le cortan el pelo, le lavan la cara, le cortan las uñas, etc.).", cuadrante: "sensibilidad", seccion: "tactil" },
+  { texto: "Le irrita usar zapatos o calcetines.", seccion: "tactil" },
+  { texto: "Muestra una reacción emocional o agresiva cuando alguien lo(a) toca.", cuadrante: "evitacion", seccion: "tactil" },
+  { texto: "Se pone ansioso(a) al estar de pie cerca de otros (por ejemplo, esperar en la fila).", cuadrante: "sensibilidad", seccion: "tactil" },
+  { texto: "Se frota o se rasca la parte del cuerpo donde le han tocado.", cuadrante: "sensibilidad", seccion: "tactil" },
+  { texto: "Toca personas u objetos al grado de molestar a otras personas.", cuadrante: "busqueda", seccion: "tactil" },
+  { texto: "Muestra necesidad de tocar juguetes, superficies o texturas (por ejemplo, quiere experimentar la sensación de todo).", cuadrante: "busqueda", seccion: "tactil" },
+  { texto: "Parece no darse cuenta del dolor.", cuadrante: "registro", seccion: "tactil" },
+  { texto: "Parece no darse cuenta de los cambios de temperatura.", cuadrante: "registro", seccion: "tactil" },
+  { texto: "Toca personas u objetos más que otros niños(as) de su misma edad.", cuadrante: "busqueda", seccion: "tactil" },
+  { texto: "Parece no estar consciente de tener la cara o las manos sucias.", cuadrante: "registro", seccion: "tactil" },
+
+  { texto: "Procura estar en movimiento hasta el grado que llega a interferir con sus actividades diarias (por ejemplo, no puede quedarse quieto(a) o estar sentado(a) sin moverse).", cuadrante: "busqueda", seccion: "movimiento" },
+  { texto: "Se mece sentado(a) en una silla, en el piso o estando de pie.", cuadrante: "busqueda", seccion: "movimiento" },
+  { texto: "Titubea al subir o bajar de la acera/banqueta o de escalones (por ejemplo, es cauteloso(a), se detiene antes de moverse).", seccion: "movimiento" },
+  { texto: "Se emociona cuando realiza tareas que implican movimiento.", cuadrante: "busqueda", seccion: "movimiento" },
+  { texto: "Toma riesgos al trepar/escalar o hacer movimientos que no son seguros.", cuadrante: "busqueda", seccion: "movimiento" },
+  { texto: "Busca oportunidades de caerse, sin considerar su propia seguridad (por ejemplo, se cae a propósito).", cuadrante: "busqueda", seccion: "movimiento" },
+  { texto: "Cuando camina en terrenos desnivelados, pierde el equilibrio inesperadamente.", cuadrante: "registro", seccion: "movimiento" },
+  { texto: "Choca con las cosas, sin darse cuenta de los objetos o personas que están en su camino.", cuadrante: "registro", seccion: "movimiento" },
+
+  { texto: "Se mueve de manera rígida.", cuadrante: "registro", seccion: "posicion_cuerpo" },
+  { texto: "Se cansa fácilmente, especialmente cuando está de pie o sosteniendo el cuerpo en una posición.", cuadrante: "registro", seccion: "posicion_cuerpo" },
+  { texto: "Parece tener músculos débiles.", cuadrante: "registro", seccion: "posicion_cuerpo" },
+  { texto: "Necesita apoyo para soportarse a sí mismo (por ejemplo, sostiene la cabeza con sus manos, se recarga en la pared, etc.).", cuadrante: "registro", seccion: "posicion_cuerpo" },
+  { texto: "Se aferra a objetos, paredes o barandillas más que otros niños(as) de la misma edad.", cuadrante: "registro", seccion: "posicion_cuerpo" },
+  { texto: "Hace ruido al caminar como si le pesaran los pies.", cuadrante: "registro", seccion: "posicion_cuerpo" },
+  { texto: "Se estira echándose sobre muebles o encima de la gente.", cuadrante: "busqueda", seccion: "posicion_cuerpo" },
+  { texto: "Necesita cobijas/frazadas gruesas para dormir.", seccion: "posicion_cuerpo" },
+
+  { texto: "Tiene el reflejo del vómito (por ejemplo, con la textura de la comida o los cubiertos en la boca).", seccion: "sensorial_oral" },
+  { texto: "Rechaza ciertos sabores u olores de comida que forman parte de la dieta típica infantil.", cuadrante: "sensibilidad", seccion: "sensorial_oral" },
+  { texto: "Solo come ciertos sabores (por ejemplo, dulce o salado).", cuadrante: "sensibilidad", seccion: "sensorial_oral" },
+  { texto: "Se limita a sí mismo/a a solo ciertas texturas de comida.", cuadrante: "sensibilidad", seccion: "sensorial_oral" },
+  { texto: "Es particular o exigente para comer, especialmente en lo que se refiere a la textura de la comida.", cuadrante: "sensibilidad", seccion: "sensorial_oral" },
+  { texto: "Huele objetos que no son comidas.", cuadrante: "busqueda", seccion: "sensorial_oral" },
+  { texto: "Muestra una fuerte preferencia hacia ciertos sabores.", cuadrante: "busqueda", seccion: "sensorial_oral" },
+  { texto: "Se le antojan ciertos alimentos, sabores u olores.", cuadrante: "busqueda", seccion: "sensorial_oral" },
+  { texto: "Se mete objetos a la boca (por ejemplo, lápiz, manos, etc.).", cuadrante: "busqueda", seccion: "sensorial_oral" },
+  { texto: "Se muerde la lengua o los labios, más que otros niños(as) de su misma edad.", cuadrante: "sensibilidad", seccion: "sensorial_oral" },
+
+  { texto: "Parece ser propenso a los accidentes.", cuadrante: "registro", seccion: "conducta" },
+  { texto: "Se apresura cuando pinta, escribe o dibuja.", cuadrante: "registro", seccion: "conducta" },
+  { texto: "Toma riesgos excesivos comprometiendo su propia seguridad (por ejemplo, se trepa en un árbol alto, brinca de muebles altos, etc.).", cuadrante: "busqueda", seccion: "conducta" },
+  { texto: "Parece ser más activo(a) que otros niños(as) de su edad.", cuadrante: "busqueda", seccion: "conducta" },
+  { texto: "Hace las cosas más difíciles de lo que es necesario (por ejemplo, desperdicia el tiempo, se mueve con lentitud, etc.).", cuadrante: "registro", seccion: "conducta" },
+  { texto: "Puede ser terco(a), necio(a), y poco cooperativo(o).", cuadrante: "evitacion", seccion: "conducta" },
+  { texto: "Hace berrinches.", cuadrante: "evitacion", seccion: "conducta" },
+  { texto: "Parece disfrutar de las caídas.", cuadrante: "busqueda", seccion: "conducta" },
+  { texto: "Se resiste al contacto visual mío o de los demás.", cuadrante: "evitacion", seccion: "conducta" },
+
+  { texto: "Parece tener una baja autoestima (por ejemplo, dificultad para sentirse bien consigo mismo(a)).", cuadrante: "registro", seccion: "emocional_social" },
+  { texto: "Requiere de apoyo positivo para responder a situaciones desafiantes.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Es sensible a las críticas.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Tiene miedos predecibles y definidos.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Manifiesta sentirse como un fracaso.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Es muy serio(a).", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Tiene fuertes arrebatos emocionales cuando no puede completar una tarea.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Le cuesta trabajo interpretar el lenguaje corporal o las expresiones faciales.", cuadrante: "sensibilidad", seccion: "emocional_social" },
+  { texto: "Se frustra fácilmente.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Tiene temores que interfieren con la rutina cotidiana.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Se angustia cuando hay cambios en los planes, rutinas o expectativas.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Necesita más protección de la vida que otros niños(as) de su misma edad (por ejemplo, es indefenso/a física o emocionalmente).", cuadrante: "sensibilidad", seccion: "emocional_social" },
+  { texto: "Interactúa o participa en grupos menos que otros niños(as) de su edad.", cuadrante: "evitacion", seccion: "emocional_social" },
+  { texto: "Tiene dificultades con las amistades (por ejemplo, hacer o retener amigos).", cuadrante: "evitacion", seccion: "emocional_social" },
+
+  { texto: "Tiene muy poco contacto visual conmigo durante nuestras interacciones diarias.", cuadrante: "registro", seccion: "atencion" },
+  { texto: "Tiene dificultad para poner atención.", cuadrante: "sensibilidad", seccion: "atencion" },
+  { texto: "Aparta la vista de sus tareas para observar todas las actividades en la habitación.", cuadrante: "sensibilidad", seccion: "atencion" },
+  { texto: "Parece no estar consciente de un ambiente activo (por ejemplo, no se da cuenta de las actividades que ocurren).", cuadrante: "registro", seccion: "atencion" },
+  { texto: "Mira fijamente a los objetos.", cuadrante: "registro", seccion: "atencion" },
+  { texto: "Mira fijamente a las personas.", cuadrante: "evitacion", seccion: "atencion" },
+  { texto: "Observa a todas las personas que se mueven alrededor de la habitación.", cuadrante: "busqueda", seccion: "atencion" },
+  { texto: "Brinca de una cosa a otra a tal grado que interfiere con las actividades.", cuadrante: "busqueda", seccion: "atencion" },
+  { texto: "Se pierde fácilmente.", cuadrante: "sensibilidad", seccion: "atencion" },
+  { texto: "Le cuesta trabajo encontrar cosas en situaciones que complican el problema (por ejemplo, zapatos en un cuarto desordenado, lápiz en un cajón lleno de trastos, etc.).", cuadrante: "registro", seccion: "atencion" },
+  { texto: "Parece no darse cuenta cuando las personas entran a la habitación.", cuadrante: "registro" },
+];
+
+const PERFIL_SENSORIAL_NINO: TestDefinition = {
+  id: "perfil_sensorial_nino",
+  codigo: "PS2_NINO",
+  nombre: "Perfil Sensorial-2 · Niño (padres/cuidadores, 3:0 a 14:11 años)",
+  tipo: "autoinforme",
+  categoria: "autismo",
+  grupo: "perfil_sensorial",
+  nombreGrupo: "Perfil Sensorial 2",
+  nombreVariante: "Niño · Padres/cuidadores (86 ítems)",
+  descripcion:
+    "Cuestionario completo para padres o cuidadores, de 3:0 a 14:11 años (Winnie Dunn). Versión " +
+    "extendida (86 ítems, 9 secciones sensoriales/conductuales) del Perfil Sensorial-2.",
+  instrucciones:
+    "Marque la opción que describa mejor la frecuencia con la que el niño(a) muestra cada " +
+    "comportamiento cuando se le presenta la oportunidad.",
+  algoritmoCalculo: "suma_por_dominio",
+  requiereBaremo: false,
+  dominios: ["busqueda", "evitacion", "sensibilidad", "registro"],
+  activo: true,
+  preguntas: PS_NINO_ITEMS.map((item, i) => ({
+    id: `psnino_${i + 1}`,
+    texto: item.texto,
+    tipo: "likert" as const,
+    ...(item.cuadrante ? { dominio: item.cuadrante } : {}),
+    ejesAdicionales: { ...(item.seccion ? { seccion: item.seccion } : {}) },
+    opciones: psOpciones,
+  })),
+};
+
 const CATALOGO: TestDefinition[] = [
   PHQ9,
   GAD7,
@@ -623,6 +752,7 @@ const CATALOGO: TestDefinition[] = [
   ADOS2,
   PERFIL_SENSORIAL_BREVE,
   PERFIL_SENSORIAL_ESCOLAR,
+  PERFIL_SENSORIAL_NINO,
 ];
 
 const BAREMOS_EJEMPLO: NormativeTable[] = [
