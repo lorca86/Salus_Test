@@ -119,7 +119,7 @@ export interface Assessment {
   creadoEn: string;
 }
 
-export type NivelRiesgo = "minimo" | "leve" | "moderado" | "severo";
+export type NivelRiesgo = "minimo" | "leve" | "moderado" | "severo" | "pendiente";
 
 export interface Result {
   id: string;

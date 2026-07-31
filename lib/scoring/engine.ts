@@ -309,6 +309,7 @@ function generarResumenTexto(
     leve: "leve",
     moderado: "moderado",
     severo: "severo",
+    pendiente: "pendiente",
   };
   return `${test.nombre} — Puntuación(es): ${entradas}. Nivel de riesgo estimado: ${nivelTexto[nivelRiesgo]}.`;
 }

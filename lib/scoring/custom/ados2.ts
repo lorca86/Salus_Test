@@ -14,7 +14,7 @@
 export interface ResultadoADOS2 {
   puntuacionesDirectas: Record<string, number>;
   clasificaciones: Record<string, string>;
-  nivelRiesgo: "minimo" | "leve" | "moderado" | "severo";
+  nivelRiesgo: "minimo" | "leve" | "moderado" | "severo" | "pendiente";
 }
 
 function valorItem(respuestas: Record<string, number | string>, id: string): number {
@@ -92,8 +92,52 @@ export function calcularADOS2ModuloT(
   };
 }
 
+// --- Módulo 2 (Habla con frases) ------------------------------------------
+//
+// A diferencia del Módulo T, la conversión de código a puntuación de
+// algoritmo es la misma para todos los ítems (no hay excepción tipo B1) y el
+// corte de columna depende solo de la edad cronológica (</>= 5 años), no del
+// nivel de lenguaje. La tabla de clasificación oficial (reverso de la hoja
+// de algoritmo) no fue provista por el usuario, así que este módulo NO
+// calcula clasificación ni nivel de riesgo automáticos — solo las
+// puntuaciones directas AS/CRR/Total. Debe completarse cuando se disponga
+// de esa tabla.
+
+const AS_ITEMS_2 = [
+  "ados22_a6", "ados22_a7",
+  "ados22_b1", "ados22_b2", "ados22_b3", "ados22_b5", "ados22_b6",
+  "ados22_b8", "ados22_b11", "ados22_b12",
+];
+const CRR_ITEMS_2 = ["ados22_a4", "ados22_d1", "ados22_d2", "ados22_d4"];
+
+// Conversión de código de ítem a puntuación de algoritmo: 0->0,1->1,2->2,
+// 3->2,7->0,8->0,9->0 (igual para todos los ítems de este módulo).
+function convertirCodigo2(codigo: number): number {
+  if (codigo === 0 || codigo === 1 || codigo === 2) return codigo;
+  if (codigo === 3) return 2;
+  return 0;
+}
+
+export function calcularADOS2Modulo2(
+  respuestas: Record<string, number | string>
+): ResultadoADOS2 {
+  let totalAS = 0;
+  for (const id of AS_ITEMS_2) totalAS += convertirCodigo2(valorItem(respuestas, id));
+  let totalCRR = 0;
+  for (const id of CRR_ITEMS_2) totalCRR += convertirCodigo2(valorItem(respuestas, id));
+  const totalGlobal = totalAS + totalCRR;
+
+  return {
+    puntuacionesDirectas: { total_AS: totalAS, total_CRR: totalCRR, total_global: totalGlobal },
+    clasificaciones: {
+      nota: "Clasificación pendiente: falta incorporar la tabla oficial de corte del ADOS-2 Módulo 2",
+    },
+    nivelRiesgo: "pendiente",
+  };
+}
+
 // Registro de algoritmos por código de test. Se amplía a medida que se
-// agregan más módulos (1, 2, 3, 4).
+// agregan más módulos (1, 3, 4).
 export function calcularADOS2(
   codigoTest: string,
   respuestas: Record<string, number | string>,
@@ -102,6 +146,8 @@ export function calcularADOS2(
   switch (codigoTest) {
     case "ADOS2_T":
       return calcularADOS2ModuloT(respuestas, edadMesesCronologica);
+    case "ADOS2_2":
+      return calcularADOS2Modulo2(respuestas);
     default:
       throw new Error(`No hay algoritmo ADOS-2 registrado para "${codigoTest}"`);
   }

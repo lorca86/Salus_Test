@@ -6,6 +6,7 @@ const ESTILOS: Record<NivelRiesgo, { bg: string; text: string; label: string }> 
   leve: { bg: "bg-lime-100", text: "text-lime-700", label: "Leve" },
   moderado: { bg: "bg-amber-100", text: "text-amber-700", label: "Moderado" },
   severo: { bg: "bg-red-100", text: "text-red-700", label: "Severo" },
+  pendiente: { bg: "bg-clinical-slate-100", text: "text-clinical-slate-500", label: "Clasificación pendiente" },
 };
 
 export function RiskBadge({ nivel }: { nivel: NivelRiesgo }) {
