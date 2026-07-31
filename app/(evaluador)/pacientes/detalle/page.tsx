@@ -7,7 +7,7 @@ import { db } from "@/lib/firebase";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { RiskBadge } from "@/components/ui/RiskBadge";
-import { obtenerPaciente } from "@/lib/patients";
+import { obtenerPaciente, eliminarPaciente } from "@/lib/patients";
 import { listarResultadosPorPaciente } from "@/lib/results";
 import { eliminarAsignacion } from "@/lib/assessments";
 import type { Assessment, Patient, Result } from "@/lib/types";
@@ -21,6 +21,7 @@ function DetallePacienteContenido() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [resultados, setResultados] = useState<Result[]>([]);
   const [eliminandoId, setEliminandoId] = useState<string | null>(null);
+  const [eliminandoPaciente, setEliminandoPaciente] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -52,6 +53,25 @@ function DetallePacienteContenido() {
     }
   }
 
+  async function eliminarPacienteActual() {
+    if (!paciente) return;
+    if (
+      !window.confirm(
+        `¿Eliminar el expediente de ${paciente.nombreCompleto}? Se borrarán también todas sus evaluaciones y resultados. Esta acción no se puede deshacer.`
+      )
+    ) {
+      return;
+    }
+    setEliminandoPaciente(true);
+    try {
+      await eliminarPaciente(paciente.id);
+      window.location.href = "/pacientes";
+    } catch (err) {
+      setEliminandoPaciente(false);
+      throw err;
+    }
+  }
+
   if (!paciente) return <p className="text-clinical-slate-400">Cargando expediente…</p>;
 
   return (
@@ -73,6 +93,14 @@ function DetallePacienteContenido() {
           <Button onClick={() => (window.location.href = `/asignaciones/?patientId=${paciente.id}`)}>
             Asignar a distancia
           </Button>
+          <button
+            onClick={eliminarPacienteActual}
+            disabled={eliminandoPaciente}
+            title="Eliminar paciente"
+            className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50 disabled:opacity-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
